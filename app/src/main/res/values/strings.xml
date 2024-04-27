@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ClothesVault</string>
+    <string name="email">Email</string>
+    <string name="contrasenha">Contraseña</string>
+    <string name="iniciar_sesion">Iniciar sesion</string>
+    <string name="registrarse">Registrarse</string>
+    <string name="registerNombre">Nombre</string>
+    <string name="registerPrimerApellido">Primer Apellido</string>
+    <string name="registerSegundoApellido">Segundo Apellido</string>
+    <string name="registerEmail">Email</string>
+    <string name="registerDireccion">Dirección</string>
+    <string name="registerCodigoPostal">Código Postal</string>
+    <string name="registerSiCuenta">Haz clic aquí si ya tienes una cuenta</string>
+
+</resources>
