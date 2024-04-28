@@ -105,4 +105,9 @@ public class Login extends AppCompatActivity {
         resources.updateConfiguration(config, resources.getDisplayMetrics());
 
     }
+
+    private boolean verificarContrasenha(String contrasenhaIntroducida, String contrasenhaAlmacenada) {
+        String contrasenhaCifrada = Registro.cifrarContrasenha(contrasenhaIntroducida);
+        return contrasenhaCifrada != null && contrasenhaCifrada.equals(contrasenhaAlmacenada);
+    }
 }
