@@ -1,4 +1,4 @@
-# Aplicación android ClothesVault
+# Aplicación Android ClothesVault
 
 
 "ClothesVault" es una aplicación móvil diseñada para simplificar y optimizar la gestión del pedidos y/ o almacén de una tienda de ropa. 
