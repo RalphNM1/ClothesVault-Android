@@ -27,6 +27,7 @@ public class AdaptadorUsuario extends ArrayAdapter<Usuario> {
         this.usuarios = objects;
     }
 
+ /*
 
     @NonNull
     @Override
@@ -35,15 +36,17 @@ public class AdaptadorUsuario extends ArrayAdapter<Usuario> {
         View rowView = layoutInflater.inflate(R.layout.content_main, parent, false);
 
 
-     /*   TextView txtidUsuario = (TextView) rowView.findViewById(R.id.ID);
+      TextView txtidUsuario = (TextView) rowView.findViewById(R.id.ID);
         TextView txtNombre = (TextView) rowView.findViewById(R.id.Nombre);
         TextView txtApellido = (TextView) rowView.findViewById(R.id.Apellido);
 
         txtidUsuario.setText("ID: " + usuarios.get(position).getId());
         txtNombre.setText("Nombre: " + usuarios.get(position).getNombre());
         txtApellido.setText("Apellido: " + usuarios.get(position).getApellido1());
-*/
+
         return rowView;
     }
+
+  */
 
 }

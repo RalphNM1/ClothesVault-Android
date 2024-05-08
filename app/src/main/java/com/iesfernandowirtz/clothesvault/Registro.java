@@ -20,6 +20,7 @@ import com.iesfernandowirtz.clothesvault.Utils.ServicioUsuario;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -78,8 +79,7 @@ public class Registro extends AppCompatActivity {
                     u.setCp(Integer.parseInt(txtCp.getText().toString()));
 
                     // Comprobar que el usuario no existe
-
-                    addUsuario(u);
+                    verificarUsuarioExistente(u);
 
 
                 } catch (NumberFormatException nfe) {
@@ -93,50 +93,50 @@ public class Registro extends AppCompatActivity {
 
     }
 
-    public boolean comprobarCampos() {
-        boolean todoOK = true;
-        if (txtNombre.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca el nombre", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
+    private void verificarUsuarioExistente(Usuario u) {
+        servicioUsuario = Apis.getServicioUsuario();
 
-        if (txtPrimerApellido.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca el primer apellido", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
+        // Construir la URL completa con el correo electrónico proporcionado
+        String email = u.getEmail();
+        Call<List<Usuario>> call = servicioUsuario.getUsuarioXEmail(email);
 
 
-        if (txtSegundoApellido.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca el segundo apellido", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
+        call.enqueue(new Callback<List<Usuario>>() {
 
+            @Override
+            public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
 
-        if (txtEmail.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca el email", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
+                if (response.body().isEmpty()) {
+                    Toast.makeText(Registro.this, "Creando Usuario...", Toast.LENGTH_SHORT).show();
+                    addUsuario(u);
+                    limpiarCampos();
+                } else {
+                    Toast.makeText(Registro.this, "El usuario ya existe", Toast.LENGTH_SHORT).show();
 
+                }
+            }
 
-        if (txtContrasenha.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca la contraseña", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
+            @Override
+            public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
 
-        if (txtDireccion.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca la dirección", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
-
-
-        if (txtCp.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Introduzca el código postal", Toast.LENGTH_SHORT).show();
-            todoOK = false;
-        }
-
-
-        return todoOK;
+            }
+        });
     }
+
+
+    public void limpiarCampos() {
+        txtNombre.setText("");
+        txtPrimerApellido.setText("");
+        txtSegundoApellido.setText("");
+        txtEmail.setText("");
+        txtContrasenha.setText("");
+        txtDireccion.setText("");
+        txtCp.setText("");
+    }
+
+
+
+
 
     public void addUsuario(Usuario u) {
         servicioUsuario = Apis.getServicioUsuario();

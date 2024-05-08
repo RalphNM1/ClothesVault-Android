@@ -8,10 +8,16 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ServicioUsuario {
     @GET("/usuarios/listar")
     Call<List<Usuario>> getUsuario();
+
+    @GET("/usuarios/listarXEmail/{email}")
+    Call<List<Usuario>> getUsuarioXEmail(@Path("email") String email);
+
 
     @POST("/usuarios/insertar")
     Call<Usuario>addUsuario(@Body Usuario usuario);
