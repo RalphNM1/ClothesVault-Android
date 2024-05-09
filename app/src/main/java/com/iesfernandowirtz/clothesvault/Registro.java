@@ -64,30 +64,28 @@ public class Registro extends AppCompatActivity {
 
 
         btRegistrar.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-
                 try {
                     Usuario u = new Usuario();
                     u.setNombre(txtNombre.getText().toString());
                     u.setApellido1(txtPrimerApellido.getText().toString());
                     u.setApellido2(txtSegundoApellido.getText().toString());
-                    u.setEmail(txtEmail.getText().toString());
+                    String email = txtEmail.getText().toString();
+                    if (!validarFormatoCorreo(email)) {
+                        Toast.makeText(Registro.this, "Ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    u.setEmail(email);
                     u.setContrasenha(cifrarContrasenha(txtContrasenha.getText().toString())); // CIFRAR CONTRASEÑA
                     u.setDireccion(txtDireccion.getText().toString());
                     u.setCp(Integer.parseInt(txtCp.getText().toString()));
 
                     // Comprobar que el usuario no existe
                     verificarUsuarioExistente(u);
-
-
                 } catch (NumberFormatException nfe) {
-
                     Toast.makeText(Registro.this, "Introduzca todos los campos", Toast.LENGTH_SHORT).show();
                 }
-
-
             }
         });
 
@@ -115,7 +113,6 @@ public class Registro extends AppCompatActivity {
 
                 }
             }
-
             @Override
             public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
 
@@ -124,7 +121,7 @@ public class Registro extends AppCompatActivity {
     }
 
 
-    public void limpiarCampos() {
+    public void limpiarCampos() { // Limpiar todos los campos de la pantalla
         txtNombre.setText("");
         txtPrimerApellido.setText("");
         txtSegundoApellido.setText("");
@@ -134,9 +131,11 @@ public class Registro extends AppCompatActivity {
         txtCp.setText("");
     }
 
-
-
-
+    private boolean validarFormatoCorreo(String correo) {
+        // Expresión regular para validar el formato del correo electrónico
+        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        return correo.matches(regex);
+    }
 
     public void addUsuario(Usuario u) {
         servicioUsuario = Apis.getServicioUsuario();

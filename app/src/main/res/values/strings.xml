@@ -11,5 +11,6 @@
     <string name="registerDireccion">Dirección</string>
     <string name="registerCodigoPostal">Código Postal</string>
     <string name="registerSiCuenta">Haz clic aquí si ya tienes una cuenta</string>
+    <string name="registro">Registro</string>
 
 </resources>

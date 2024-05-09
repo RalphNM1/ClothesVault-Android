@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +19,24 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
+import com.iesfernandowirtz.clothesvault.Utils.Apis;
+import com.iesfernandowirtz.clothesvault.Utils.ServicioUsuario;
+
+import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Login extends AppCompatActivity {
     Spinner spinnerIdiomas;
     public static final String[] idiomas = {"Seleccionar Idioma", "Español", "Gallego"};
     public static final int[] imagenes = {R.drawable.icon, R.drawable.espanhol, R.drawable.gallego};
+    ServicioUsuario servicioUsuario;
+    EditText txtEmail;
+    EditText txtContrasenha;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +46,8 @@ public class Login extends AppCompatActivity {
 
         Button btInciarSesion = findViewById(R.id.btInciarSesion);
         Button btRegistrarse = findViewById(R.id.btRegistrarse);
-        EditText etEmail= findViewById(R.id.loginEtEmail);
-        EditText etContrasenha = findViewById(R.id.loginEtContrasenha);
+        EditText txtEmail= findViewById(R.id.loginEtEmail);
+        EditText txtContrasenha = findViewById(R.id.loginEtContrasenha);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -76,10 +89,13 @@ public class Login extends AppCompatActivity {
         btInciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Login.this, MainActivity.class);
+
+
+                login(txtEmail.getText().toString(),txtContrasenha.getText().toString());
+
 
                 // Iniciar la MainActivity
-                startActivity(intent);
+
             }
         });
 
@@ -96,6 +112,54 @@ public class Login extends AppCompatActivity {
 
     }
 
+
+    public void limpiarCampos() { // Limpiar todos los campos de la pantalla
+        txtEmail.setText("");
+        txtContrasenha.setText("");
+    }
+
+    private void login(String email, String contrasenha) {
+        servicioUsuario = Apis.getServicioUsuario();
+
+        // Construir la URL completa con el correo electrónico proporcionada
+        Call<List<Usuario>> call = servicioUsuario.getUsuarioXEmail(email);
+
+        call.enqueue(new Callback<List<Usuario>>() {
+            @Override
+            public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
+                Intent intent = new Intent(Login.this, MainActivity.class);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Usuario> usuarios = response.body();
+                    if (!usuarios.isEmpty()) {
+                        Usuario usuario = usuarios.get(0); // Suponiendo que solo haya un usuario con ese correo electrónico
+                        String contrasenhaAlmacenada = usuario.getContrasenha();
+                        if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
+                            // La contraseña es correcta, puedes realizar las acciones correspondientes, como iniciar sesión
+                            Toast.makeText(Login.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                            limpiarCampos();
+                            startActivity(intent);
+                        } else {
+                            // La contraseña es incorrecta
+                            Toast.makeText(Login.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // No se encontró ningún usuario con ese correo electrónico
+                        Toast.makeText(Login.this, "Usuario Incorrecto", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Ocurrió un error al realizar la consulta
+                    Toast.makeText(Login.this, "Error al obtener información del usuario", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
+                // Manejar fallos de la llamada
+                Toast.makeText(Login.this, "Error de red", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     public void setLocal(Activity activity, String codIdioma) {
         Locale locale = new Locale(codIdioma);
         locale.setDefault(locale);

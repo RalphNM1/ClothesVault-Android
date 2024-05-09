@@ -13,5 +13,6 @@
     <string name="registerDireccion">Enderezo</string>
     <string name="registerCodigoPostal">Código Postal</string>
     <string name="registerSiCuenta">Fai clic aquí se xa tes unha conta</string>
+    <string name="registro">Rexistro</string>
 
 </resources>
