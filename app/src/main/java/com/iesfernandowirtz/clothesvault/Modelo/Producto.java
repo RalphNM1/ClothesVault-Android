@@ -7,7 +7,9 @@ public class Producto {
     private String descripcion;
     private Double precio;
     private Integer stock;
-    private String proveedor;
+    private Long proveedor;
+
+    private String imagen;
 
     public Long getId() {
         return id;
@@ -49,11 +51,11 @@ public class Producto {
         this.stock = stock;
     }
 
-    public String getProveedor() {
+    public Long getProveedor() {
         return proveedor;
     }
 
-    public void setProveedor(String proveedor) {
+    public void setProveedor(Long proveedor) {
         this.proveedor = proveedor;
     }
 }

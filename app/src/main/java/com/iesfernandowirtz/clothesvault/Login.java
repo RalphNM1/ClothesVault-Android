@@ -46,8 +46,8 @@ public class Login extends AppCompatActivity {
 
         Button btInciarSesion = findViewById(R.id.btInciarSesion);
         Button btRegistrarse = findViewById(R.id.btRegistrarse);
-        EditText txtEmail= findViewById(R.id.loginEtEmail);
-        EditText txtContrasenha = findViewById(R.id.loginEtContrasenha);
+        txtEmail = findViewById(R.id.loginEtEmail);
+        txtContrasenha = findViewById(R.id.loginEtContrasenha);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -91,7 +91,7 @@ public class Login extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                login(txtEmail.getText().toString(),txtContrasenha.getText().toString());
+                login(txtEmail.getText().toString(), txtContrasenha.getText().toString());
 
 
                 // Iniciar la MainActivity
@@ -103,7 +103,6 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Login.this, Registro.class);
-
                 // Iniciar la actividad de Registro
                 startActivity(intent);
             }
@@ -114,8 +113,8 @@ public class Login extends AppCompatActivity {
 
 
     public void limpiarCampos() { // Limpiar todos los campos de la pantalla
-        txtEmail.setText("");
-        txtContrasenha.setText("");
+        txtEmail.getText().clear();
+        txtContrasenha.getText().clear();
     }
 
     private void login(String email, String contrasenha) {
@@ -136,8 +135,8 @@ public class Login extends AppCompatActivity {
                         String contrasenhaAlmacenada = usuario.getContrasenha();
                         if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
                             // La contraseña es correcta, puedes realizar las acciones correspondientes, como iniciar sesión
-                            Toast.makeText(Login.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                             limpiarCampos();
+                            Toast.makeText(Login.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                             startActivity(intent);
                         } else {
                             // La contraseña es incorrecta
@@ -160,6 +159,7 @@ public class Login extends AppCompatActivity {
             }
         });
     }
+
     public void setLocal(Activity activity, String codIdioma) {
         Locale locale = new Locale(codIdioma);
         locale.setDefault(locale);
