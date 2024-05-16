@@ -9,7 +9,8 @@ public class Producto {
     private Integer stock;
     private Long proveedor;
 
-    private String imagen;
+    private String talla;
+    private byte[] imagen;
 
     public Long getId() {
         return id;
@@ -57,5 +58,21 @@ public class Producto {
 
     public void setProveedor(Long proveedor) {
         this.proveedor = proveedor;
+    }
+
+    public String getTalla() {
+        return talla;
+    }
+
+    public void setTalla(String talla) {
+        this.talla = talla;
+    }
+
+    public byte[] getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(byte[] imagen) {
+        this.imagen = imagen;
     }
 }

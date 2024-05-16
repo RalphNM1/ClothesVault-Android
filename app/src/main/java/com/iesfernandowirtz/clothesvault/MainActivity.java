@@ -48,6 +48,34 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public void mostrarImagen(){
+        Call<List<Producto>> call = servicioProducto.getProducto();
+
+        call.enqueue(new Callback<List<Producto>>() {
+
+            @Override
+            public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    listaProductos = response.body();
+
+                    listaProductos.get(0).getImagen();
+                    // Configura el adaptador solo una vez, fuera del bucle for
+                    listView.setAdapter(new AdaptadorProducto(MainActivity.this, R.layout.activity_main, listaProductos));
+                } else {
+                    // Maneja la respuesta no exitosa o el cuerpo nulo
+                    Log.e("onResponse", "Error en la respuesta: " + response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Producto>> call, Throwable t) {
+                Log.e("Error:", t.getMessage());
+            }
+        });
+    }
+
+
     public void listarUsuarios() {
 
         Call<List<Producto>> call = servicioProducto.getProducto();
@@ -59,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     listaProductos = response.body();
                     for (Producto producto : listaProductos) {
-                        Log.e("Usuario", "Nombre: " + producto.getNombre() + ", Descripcion: " + producto.getDescripcion() + ", Precio: " + producto.getPrecio());
+                        Log.e("Producto", "Nombre: " + producto.getNombre() + ", Descripcion: " + producto.getDescripcion() + ", Precio: " + producto.getPrecio());
                     }
                     // Configura el adaptador solo una vez, fuera del bucle for
                     listView.setAdapter(new AdaptadorProducto(MainActivity.this, R.layout.activity_main, listaProductos));

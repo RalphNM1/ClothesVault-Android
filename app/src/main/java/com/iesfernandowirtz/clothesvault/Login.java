@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,7 +33,7 @@ import retrofit2.Response;
 
 public class Login extends AppCompatActivity {
     Spinner spinnerIdiomas;
-    public static final String[] idiomas = {"Seleccionar Idioma", "Español", "Gallego"};
+    public static final String[] idiomas = {"", "Español", "Gallego"};
     public static final int[] imagenes = {R.drawable.icon, R.drawable.espanhol, R.drawable.gallego};
     ServicioUsuario servicioUsuario;
     EditText txtEmail;
@@ -155,6 +156,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
                 // Manejar fallos de la llamada
+                Log.e("Error", throwable.toString());
                 Toast.makeText(Login.this, "Error de red", Toast.LENGTH_SHORT).show();
             }
         });

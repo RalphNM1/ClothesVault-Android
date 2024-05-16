@@ -18,6 +18,7 @@ import java.util.List;
 public class AdaptadorProducto extends ArrayAdapter<Producto> {
     private Context context;
     private List<Producto> productos;
+
     public AdaptadorProducto(@NonNull Context context, int resource, @NonNull List<Producto> objects) {
         super(context, resource, objects);
         this.context = context;
@@ -35,9 +36,9 @@ public class AdaptadorProducto extends ArrayAdapter<Producto> {
         TextView txtDescripcion = (TextView) rowView.findViewById(R.id.Descripcion);
         TextView txtPrecio = (TextView) rowView.findViewById(R.id.Precio);
 
-        txtNombre.setText("ID: " + productos.get(position).getNombre());
-        txtDescripcion.setText("Nombre: " + productos.get(position).getDescripcion());
-        txtPrecio.setText("Apellido: " + productos.get(position).getPrecio());
+        txtNombre.setText("Nombre: " + productos.get(position).getNombre());
+        txtDescripcion.setText("Descripción: " + productos.get(position).getDescripcion());
+        txtPrecio.setText("Precio: " + productos.get(position).getPrecio());
 
         return rowView;
     }
