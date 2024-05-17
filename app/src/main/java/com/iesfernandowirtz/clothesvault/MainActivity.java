@@ -1,23 +1,19 @@
 // MainActivity.java
 package com.iesfernandowirtz.clothesvault;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.iesfernandowirtz.clothesvault.Modelo.Producto;
-import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
 import com.iesfernandowirtz.clothesvault.Utils.Apis;
 import com.iesfernandowirtz.clothesvault.Utils.ServicioProducto;
-import com.iesfernandowirtz.clothesvault.Utils.ServicioUsuario;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,78 +24,65 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     ListView listView;
-
+    TextView saludo;
 
     ServicioProducto servicioProducto;
-    List<Producto> listaProductos= new ArrayList<>();
+    private RecyclerView recyclerView;
+    private AdaptadorProducto adaptadorProducto;
+    private List<Producto> productoList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-
-        listView = (ListView) findViewById(R.id.listView);
+        saludo = (TextView) findViewById(R.id.tvSaludo);
         servicioProducto = Apis.getServicioProducto();
 
-        listarUsuarios();
+        // Obtener el nombre de usuario del Intent
+        Intent intent = getIntent();
+        String nombreUsuario = intent.getStringExtra("nombreUsuario");
+
+        // Usar el nombreUsuario como sea necesario, por ejemplo, para mostrar un saludo
+        if (nombreUsuario != null) {
+            saludo.setText("¡Hola, " + nombreUsuario + "!");
+        }
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columnas
+
+        productoList = new ArrayList<>();
+
+        // Configura el adaptador con la lista vacía inicialmente
+        adaptadorProducto = new AdaptadorProducto(this, productoList);
+        recyclerView.setAdapter(adaptadorProducto);
+
+        // Realiza la solicitud HTTP para obtener los productos desde la API
+        obtenerProductosDesdeAPI();
+
 
 
     }
 
-
-    public void mostrarImagen(){
+    private void obtenerProductosDesdeAPI() {
+        // Utiliza Retrofit para realizar la solicitud HTTP
         Call<List<Producto>> call = servicioProducto.getProducto();
 
         call.enqueue(new Callback<List<Producto>>() {
-
             @Override
             public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    listaProductos = response.body();
-
-                    listaProductos.get(0).getImagen();
-                    // Configura el adaptador solo una vez, fuera del bucle for
-                    listView.setAdapter(new AdaptadorProducto(MainActivity.this, R.layout.activity_main, listaProductos));
+                    // Si la solicitud fue exitosa y se obtuvieron los datos
+                    productoList.addAll(response.body());
+                    adaptadorProducto.notifyDataSetChanged(); // Notifica al adaptador que los datos han cambiado
                 } else {
-                    // Maneja la respuesta no exitosa o el cuerpo nulo
-                    Log.e("onResponse", "Error en la respuesta: " + response.toString());
+                    // Manejar la respuesta no exitosa o null
                 }
             }
 
             @Override
             public void onFailure(Call<List<Producto>> call, Throwable t) {
-                Log.e("Error:", t.getMessage());
-            }
-        });
-    }
-
-
-    public void listarUsuarios() {
-
-        Call<List<Producto>> call = servicioProducto.getProducto();
-
-        call.enqueue(new Callback<List<Producto>>() {
-
-            @Override
-            public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    listaProductos = response.body();
-                    for (Producto producto : listaProductos) {
-                        Log.e("Producto", "Nombre: " + producto.getNombre() + ", Descripcion: " + producto.getDescripcion() + ", Precio: " + producto.getPrecio());
-                    }
-                    // Configura el adaptador solo una vez, fuera del bucle for
-                    listView.setAdapter(new AdaptadorProducto(MainActivity.this, R.layout.activity_main, listaProductos));
-                } else {
-                    // Maneja la respuesta no exitosa o el cuerpo nulo
-                    Log.e("onResponse", "Error en la respuesta: " + response.toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Producto>> call, Throwable t) {
-                Log.e("Error:", t.getMessage());
+                // Manejar el fallo de la solicitud
             }
         });
     }

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -39,6 +38,8 @@ public class Login extends AppCompatActivity {
     EditText txtEmail;
     EditText txtContrasenha;
 
+    public String nombreUsuario;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +60,7 @@ public class Login extends AppCompatActivity {
 
 
         spinnerIdiomas = findViewById(R.id.spinnerIdiomas);
-        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this, R.layout.row, idiomas, imagenes);
+        SpinnerIdiomas adapter = new SpinnerIdiomas(this, R.layout.idioma_row, idiomas, imagenes);
         spinnerIdiomas.setAdapter(adapter);
         spinnerIdiomas.setSelection(0);
         spinnerIdiomas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -92,10 +93,9 @@ public class Login extends AppCompatActivity {
             public void onClick(View v) {
 
 
-                login(txtEmail.getText().toString(), txtContrasenha.getText().toString());
+                login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
 
 
-                // Iniciar la MainActivity
 
             }
         });
@@ -127,35 +127,33 @@ public class Login extends AppCompatActivity {
         call.enqueue(new Callback<List<Usuario>>() {
             @Override
             public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
-                Intent intent = new Intent(Login.this, MainActivity.class);
-
                 if (response.isSuccessful() && response.body() != null) {
                     List<Usuario> usuarios = response.body();
                     if (!usuarios.isEmpty()) {
-                        Usuario usuario = usuarios.get(0); // Suponiendo que solo haya un usuario con ese correo electrónico
+                        Usuario usuario = usuarios.get(0);
+                        nombreUsuario = usuario.getNombre();
                         String contrasenhaAlmacenada = usuario.getContrasenha();
                         if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
-                            // La contraseña es correcta, puedes realizar las acciones correspondientes, como iniciar sesión
                             limpiarCampos();
                             Toast.makeText(Login.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+
+                            // Crear un Intent para MainActivity y pasar el nombreUsuario
+                            Intent intent = new Intent(Login.this, MainActivity.class);
+                            intent.putExtra("nombreUsuario", nombreUsuario);
                             startActivity(intent);
                         } else {
-                            // La contraseña es incorrecta
                             Toast.makeText(Login.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        // No se encontró ningún usuario con ese correo electrónico
                         Toast.makeText(Login.this, "Usuario Incorrecto", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    // Ocurrió un error al realizar la consulta
                     Toast.makeText(Login.this, "Error al obtener información del usuario", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
-                // Manejar fallos de la llamada
                 Log.e("Error", throwable.toString());
                 Toast.makeText(Login.this, "Error de red", Toast.LENGTH_SHORT).show();
             }

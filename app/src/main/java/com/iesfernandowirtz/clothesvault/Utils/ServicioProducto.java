@@ -2,7 +2,6 @@ package com.iesfernandowirtz.clothesvault.Utils;
 
 
 import com.iesfernandowirtz.clothesvault.Modelo.Producto;
-import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
 
 import java.util.List;
 

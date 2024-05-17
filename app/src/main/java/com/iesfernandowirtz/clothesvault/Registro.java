@@ -71,7 +71,7 @@ public class Registro extends AppCompatActivity {
                     u.setNombre(txtNombre.getText().toString());
                     u.setApellido1(txtPrimerApellido.getText().toString());
                     u.setApellido2(txtSegundoApellido.getText().toString());
-                    String email = txtEmail.getText().toString();
+                    String email = txtEmail.getText().toString().toLowerCase();
                     if (!validarFormatoCorreo(email)) {
                         Toast.makeText(Registro.this, "Ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show();
                         return;

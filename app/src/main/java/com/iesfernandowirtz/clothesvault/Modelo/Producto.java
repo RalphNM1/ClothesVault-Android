@@ -7,11 +7,12 @@ public class Producto {
     private String descripcion;
     private Double precio;
     private Integer stock;
-    private Long proveedor;
-
     private String talla;
     private byte[] imagen;
+    private Categoria categoria; // Nueva propiedad
+    private Proveedor proveedor; // Nueva propiedad
 
+    // Getters y setters para todos los atributos
     public Long getId() {
         return id;
     }
@@ -52,14 +53,6 @@ public class Producto {
         this.stock = stock;
     }
 
-    public Long getProveedor() {
-        return proveedor;
-    }
-
-    public void setProveedor(Long proveedor) {
-        this.proveedor = proveedor;
-    }
-
     public String getTalla() {
         return talla;
     }
@@ -74,5 +67,21 @@ public class Producto {
 
     public void setImagen(byte[] imagen) {
         this.imagen = imagen;
+    }
+
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
+
+    public Proveedor getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
     }
 }

@@ -156,7 +156,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="149dp"
                 android:layout_marginBottom="41dp"
-                android:background="@drawable/spinner_esquinas_redonddas"
+                android:background="@drawable/spinner_esquinas_redondas"
                 android:textAlignment="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
