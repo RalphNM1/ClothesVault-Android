@@ -1,239 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ScrollViewRegistro"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:fitsSystemWindows="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#dba6f8"
+        android:background="#EDF2FA"
         tools:context=".Registro">
 
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cardViewRegister"
-            android:layout_width="398dp"
-            android:layout_height="684dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="6dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="6dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/fondo_con_esq_redondeadas"
-            app:layout_constraintBottom_toBottomOf="parent"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:layout_alignParentTop="true"
+            android:background="#EB09184D"
+            android:minHeight="?attr/actionBarSize"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/btAtras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="1dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="6dp"
+                    android:src="@drawable/flechaatrasblanca"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="71dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="136dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/allproyectfont"
+                    android:text="@string/registro"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/btAtras"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
 
 
-            <EditText
-                android:id="@+id/registerApelldio2"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="99dp"
-                android:layout_marginBottom="24dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/registerSegundoApellido"
-                android:inputType="text"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/registerApelldio1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerNombre" />
-
-            <EditText
-                android:id="@+id/registerCP"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="99dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/registerCodigoPostal"
-                android:inputType="number"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerDirrecion" />
-
-            <EditText
-                android:id="@+id/registerApelldio1"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="99dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/registerPrimerApellido"
-                android:inputType="text"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerApelldio2" />
-
-            <EditText
-                android:id="@+id/registerEmail"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="99dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/registerEmail"
-                android:inputType="text"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerApelldio1" />
-
-            <EditText
-                android:id="@+id/registerContrasenha"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="99dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/contrasenha"
-                android:inputType="textPassword"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerEmail" />
-
-            <EditText
-                android:id="@+id/registerDirrecion"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="99dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/registerDireccion"
-                android:inputType="textPostalAddress"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerContrasenha" />
-
-            <Button
-                android:id="@+id/btRegistrar"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="99dp"
-                android:backgroundTint="#dba6f8"
-                android:fontFamily="@font/allproyectfont"
-                android:text="@string/registrarse"
-
-                android:textAlignment="center"
-                android:textColor="#4E4E4E"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/registerCP" />
-
-            <EditText
-                android:id="@+id/registerNombre"
-                android:layout_width="200dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="99dp"
-                android:layout_marginTop="69dp"
-                android:layout_marginEnd="99dp"
-                android:autofillHints="text"
-                android:background="@drawable/edittextesqredond"
-                android:fontFamily="@font/allproyectfont"
-                android:hint="@string/registerNombre"
-                android:inputType="text"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textColorHint="#e3e1e1"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/textViewEnlace"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="48dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="48dp"
-                android:layout_marginBottom="18dp"
-                android:clickable="true"
-                android:fontFamily="@font/allproyectfont"
-                android:onClick="abrirOtraActividad"
-                android:text="@string/registerSiCuenta"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btRegistrar" />
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="138dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="137dp"
-                android:fontFamily="@font/allproyectfont"
-                android:text="@string/registro"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textColorHint="#e3e1e1"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="51dp"
+            android:layout_marginEnd="312dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registerNombre"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="252dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registerPrimerApellido"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerNombre" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="234dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registerSegundoApellido"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerApelldio1" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="335dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registerEmail"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerApelldio2" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="281dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/contrasenha"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerEmail" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="300dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registerDireccion"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerContrasenha" />
+
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="263dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registerCodigoPostal"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerDirrecion" />
+
+        <EditText
+            android:id="@+id/registerNombre"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerNombreHint"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+        <Button
+            android:id="@+id/btRegistrar"
+            android:layout_width="350dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:backgroundTint="#7B5BF2"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/registrarse"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/registerCP" />
+
+        <EditText
+            android:id="@+id/registerApelldio2"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerSegundoApellidoHint"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+        <EditText
+            android:id="@+id/registerEmail"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerEmailHint"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView6" />
+
+        <EditText
+            android:id="@+id/registerContrasenha"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerContrasenhaHint"
+            android:inputType="textPassword"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView7" />
+
+        <EditText
+            android:id="@+id/registerDirrecion"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerDireccionHint"
+            android:inputType="textPostalAddress"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView8" />
+
+        <EditText
+            android:id="@+id/registerCP"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerCodigoPostalHint"
+            android:inputType="number"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+        <EditText
+            android:id="@+id/registerApelldio1"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredond"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/registerPrimerApellidoHint"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textColorHint="#e3e1e1"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>

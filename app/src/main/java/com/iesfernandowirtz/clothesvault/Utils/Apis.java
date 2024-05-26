@@ -1,7 +1,7 @@
 package com.iesfernandowirtz.clothesvault.Utils;
 
 public class Apis {
-    public static final String URL_001="http://192.168.1.130:8080";
+    public static  String URL_001="http://192.168.1.133:8080";
 
     public static ServicioUsuario getServicioUsuario(){
         return Cliente.getCliente(URL_001).create(ServicioUsuario.class);

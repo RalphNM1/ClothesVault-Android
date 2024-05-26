@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ScrollViewRegistro"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EDF2FA"
+    android:fillViewport="true"
+    android:fitsSystemWindows="false">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".Opciones"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="45dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:layout_alignParentTop="true"
+            android:background="#EB09184D"
+            android:minHeight="?attr/actionBarSize"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/btAtras"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="6dp"
+                    android:src="@drawable/flechaatrasblanca"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvOpciones"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="63dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="127dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/allproyectfont"
+                    android:text="@string/opciones"
+                    android:textAlignment="center"
+                    android:textColor="#FFFFFF"
+                    android:textSize="32sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/btAtras"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.appcompat.widget.Toolbar>
+
+
+        <TextView
+            android:id="@+id/tvCambiarIP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="72dp"
+            android:layout_marginTop="236dp"
+            android:layout_marginEnd="72dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/cambiarIP"
+            android:textColor="#000000"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.541"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCambiarIdioma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_marginStart="72dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="72dp"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/cambiarIdioma"
+            android:textColor="#000000"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btCambiarIp" />
+
+        <EditText
+            android:id="@+id/etIntIP"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="29dp"
+            android:layout_marginEnd="31dp"
+            android:autofillHints="text"
+            android:background="@drawable/edittextesqredondtrans"
+            android:fontFamily="@font/allproyectfont"
+            android:hint="@string/IntroducirIP"
+            android:inputType="text"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCambiarIP" />
+
+        <Button
+            android:id="@+id/btCambiarIp"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="105dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="106dp"
+            android:backgroundTint="#7B5BF2"
+            android:fontFamily="@font/allproyectfont"
+            android:text="@string/cambiar"
+            android:textAlignment="center"
+            android:textColor="#e3e1e1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etIntIP" />
+
+        <Spinner
+            android:id="@+id/spinnerIdiomas"
+            android:layout_width="142dp"
+            android:layout_height="53dp"
+            android:layout_marginStart="149dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="149dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/spinner_esquinas_redondas"
+            android:textAlignment="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.517"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCambiarIdioma"
+            app:layout_constraintVertical_bias="0.008" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

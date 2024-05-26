@@ -1,18 +1,21 @@
 package com.iesfernandowirtz.clothesvault;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
 import com.iesfernandowirtz.clothesvault.Utils.Apis;
@@ -26,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Registro extends AppCompatActivity {
+public class Registro extends ActividadBase {
 
     ServicioUsuario servicioUsuario;
     EditText txtNombre;
@@ -37,12 +40,13 @@ public class Registro extends AppCompatActivity {
     EditText txtDireccion;
     EditText txtCp;
     Button btRegistrar;
+    ImageView btAtras;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_registro);
+
 
         txtNombre = (EditText) findViewById(R.id.registerNombre);
         txtPrimerApellido = (EditText) findViewById(R.id.registerApelldio1);
@@ -52,16 +56,24 @@ public class Registro extends AppCompatActivity {
         txtDireccion = (EditText) findViewById(R.id.registerDirrecion);
         txtCp = (EditText) findViewById(R.id.registerCP);
         btRegistrar = (Button) findViewById(R.id.btRegistrar);
+        btAtras = (ImageView) findViewById(R.id.btAtras);
 
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-
-
+        View container = findViewById(R.id.ScrollViewRegistro);
+        container.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Utilidades.ocultarTeclado(Registro.this, v);
+                return false;
+            }
         });
 
+        btAtras.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Registro.this, Login.class);
+                startActivity(intent);
+            }
+        });
 
         btRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,7 +84,7 @@ public class Registro extends AppCompatActivity {
                     u.setApellido1(txtPrimerApellido.getText().toString());
                     u.setApellido2(txtSegundoApellido.getText().toString());
                     String email = txtEmail.getText().toString().toLowerCase();
-                    if (!validarFormatoCorreo(email)) {
+                    if (!Utilidades.validarFormatoCorreo(email)) {
                         Toast.makeText(Registro.this, "Ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -88,7 +100,11 @@ public class Registro extends AppCompatActivity {
                 }
             }
         });
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorFondo));
+        }
     }
 
     private void verificarUsuarioExistente(Usuario u) {
@@ -113,6 +129,7 @@ public class Registro extends AppCompatActivity {
 
                 }
             }
+
             @Override
             public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
 
@@ -131,11 +148,7 @@ public class Registro extends AppCompatActivity {
         txtCp.setText("");
     }
 
-    private boolean validarFormatoCorreo(String correo) {
-        // Expresión regular para validar el formato del correo electrónico
-        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
-        return correo.matches(regex);
-    }
+
 
     public void addUsuario(Usuario u) {
         servicioUsuario = Apis.getServicioUsuario();
@@ -157,10 +170,6 @@ public class Registro extends AppCompatActivity {
         });
     }
 
-    public void abrirOtraActividad(View view) {
-        Intent intent = new Intent(this, Login.class);
-        startActivity(intent);
-    }
 
     public static String cifrarContrasenha(String contrasenha) {
         try {

@@ -4,13 +4,25 @@
     <string name="contrasenha">Contraseña</string>
     <string name="iniciar_sesion">Iniciar sesion</string>
     <string name="registrarse">Registrarse</string>
+    <string name="registerNombreHint">Introduzca el nombre</string>
+    <string name="registerPrimerApellidoHint">Introduzca el primer apellido</string>
+    <string name="registerSegundoApellidoHint">Introduzca el segundo apellido</string>
+    <string name="registerEmailHint">Introduzca el email</string>
+    <string name="registerDireccionHint">Introduzca la dirección</string>
+    <string name="registerCodigoPostalHint">Introduzca el código postal</string>
+    <string name="registerContrasenhaHint">Introduzca la contraseña</string>
     <string name="registerNombre">Nombre</string>
-    <string name="registerPrimerApellido">Primer Apellido</string>
-    <string name="registerSegundoApellido">Segundo Apellido</string>
+    <string name="registerPrimerApellido">Primer apellido</string>
+    <string name="registerSegundoApellido">Segundo apellido</string>
     <string name="registerEmail">Email</string>
     <string name="registerDireccion">Dirección</string>
-    <string name="registerCodigoPostal">Código Postal</string>
-    <string name="registerSiCuenta">Haz clic aquí si ya tienes una cuenta</string>
+    <string name="registerCodigoPostal">Código postal</string>
     <string name="registro">Registro</string>
+    <string name="cambiarIdioma">Cambiar el idioma</string>
+    <string name="cambiar">Cambiar</string>
+    <string name="IntroducirIP">Introduzca la IP</string>
+    <string name="cambiarIP">Cambiar la IP</string>
+    <string name="opciones">Opciones</string>
+
 
 </resources>

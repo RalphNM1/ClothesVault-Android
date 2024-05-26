@@ -6,13 +6,25 @@
     <string name="contrasenha">Contrasinal</string>
     <string name="iniciar_sesion">Iniciar sesion</string>
     <string name="registrarse">Rexistrarse</string>
+    <string name="registerNombreHint">Introduzca o nome</string>
+    <string name="registerPrimerApellidoHint">Introduza o primeiro apelido</string>
+    <string name="registerSegundoApellidoHint">Introduzca o segundo apelido</string>
+    <string name="registerEmailHint">Introduzca o email</string>
+    <string name="registerDireccionHint">Introduzca a dirección</string>
+    <string name="registerCodigoPostalHint">Introduzca o código postal</string>
+    <string name="registerContrasenhaHint">Introduzca o contrasinal</string>
     <string name="registerNombre">Nome</string>
-    <string name="registerPrimerApellido">Primeiro  Apelido</string>
-    <string name="registerSegundoApellido">Segundo Apelido</string>
+    <string name="registerPrimerApellido">Primeiro apelido</string>
+    <string name="registerSegundoApellido">Segundo apelido</string>
     <string name="registerEmail">Email</string>
-    <string name="registerDireccion">Enderezo</string>
-    <string name="registerCodigoPostal">Código Postal</string>
-    <string name="registerSiCuenta">Fai clic aquí se xa tes unha conta</string>
+    <string name="registerDireccion">Dirección</string>
+    <string name="registerCodigoPostal">Código postal</string>
     <string name="registro">Rexistro</string>
+    <string name="cambiarIdioma">Cambiar o idioma</string>
+    <string name="IntroducirIP">Introduzca a IP</string>
+    <string name="cambiar">Cambiar</string>
+    <string name="cambiarIP">Cambiar a IP</string>
+    <string name="opciones">Opcións</string>
+
 
 </resources>

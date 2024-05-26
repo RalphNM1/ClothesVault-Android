@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Estado cuando el EditText está presionado -->
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="#80000000"/> <!-- Cambia el color al presionar -->
+            <corners android:radius="15dp"/>
+            <stroke android:width="2dp" android:color="#808080"/> <!-- Borde gris -->
+        </shape>
+    </item>
+    <!-- Estado por defecto -->
+    <item>
+        <shape>
+            <solid android:color="#00808080"/> <!-- Color original -->
+            <corners android:radius="15dp"/>
+            <stroke android:width="2dp" android:color="#808080"/> <!-- Borde gris -->
+        </shape>
+    </item>
+</selector>

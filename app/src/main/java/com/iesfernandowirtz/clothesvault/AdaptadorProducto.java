@@ -1,6 +1,7 @@
 package com.iesfernandowirtz.clothesvault;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.iesfernandowirtz.clothesvault.Modelo.Producto;
 import java.util.List;
-
 public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.ProductoViewHolder> {
 
     private Context context;
@@ -32,12 +33,17 @@ public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.Pr
     @Override
     public void onBindViewHolder(@NonNull ProductoViewHolder holder, int position) {
         Producto producto = productoList.get(position);
-        holder.productName.setText(producto.getNombre());
-        holder.productPrice.setText("€ " + producto.getPrecio());
-        //  cargar la imagen del producto
-        // Glide.with(context).load(producto.getImagen()).into(holder.productImage);
-    }
+        holder.productoNombre.setText(producto.getNombre());
+        holder.productoPrecio.setText("€ " + producto.getPrecio());
+        holder.productoTalla.setText(producto.getTalla()); // Mostrar la talla
 
+        // Cargar la imagen desde la URL usando Glide
+        Glide.with(context)
+                .load(producto.getImagenUrl()) // URL de la imagen
+                .placeholder(R.drawable.imagen_test) // Imagen de carga mientras se descarga la imagen
+                .error(R.drawable.imagen_test) // Imagen de error si la carga falla
+                .into(holder.productoImagen); // ImageView donde se mostrará la imagen
+    }
 
     @Override
     public int getItemCount() {
@@ -46,15 +52,17 @@ public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.Pr
 
     public class ProductoViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView productImage;
-        TextView productName;
-        TextView productPrice;
+        ImageView productoImagen;
+        TextView productoNombre;
+        TextView productoPrecio;
+        TextView productoTalla; // Nuevo TextView para la talla
 
         public ProductoViewHolder(@NonNull View itemView) {
             super(itemView);
-            productImage = itemView.findViewById(R.id.product_image);
-            productName = itemView.findViewById(R.id.product_name);
-            productPrice = itemView.findViewById(R.id.product_price);
+            productoImagen = itemView.findViewById(R.id.productoImagen);
+            productoNombre = itemView.findViewById(R.id.productoNombre);
+            productoPrecio = itemView.findViewById(R.id.productoPrecio);
+            productoTalla = itemView.findViewById(R.id.productoTalla); // Vincular el nuevo TextView
         }
     }
 }

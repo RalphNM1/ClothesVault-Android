@@ -1,23 +1,28 @@
 package com.iesfernandowirtz.clothesvault;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
 import com.iesfernandowirtz.clothesvault.Utils.Apis;
@@ -30,63 +35,54 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Login extends AppCompatActivity {
-    Spinner spinnerIdiomas;
-    public static final String[] idiomas = {"", "Español", "Gallego"};
-    public static final int[] imagenes = {R.drawable.icon, R.drawable.espanhol, R.drawable.gallego};
+public class Login extends ActividadBase {
+
     ServicioUsuario servicioUsuario;
     EditText txtEmail;
     EditText txtContrasenha;
+    CheckBox checkboxRecordarEmail;
 
     public String nombreUsuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+
         setContentView(R.layout.activity_login);
 
         Button btInciarSesion = findViewById(R.id.btInciarSesion);
         Button btRegistrarse = findViewById(R.id.btRegistrarse);
         txtEmail = findViewById(R.id.loginEtEmail);
         txtContrasenha = findViewById(R.id.loginEtContrasenha);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        ImageView opciones = findViewById(R.id.loginOpciones);
+        checkboxRecordarEmail = findViewById(R.id.checkboxRecordarEmail);
 
+        manejarCheckBox(checkboxRecordarEmail, txtEmail);
 
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.black));
+        }
 
-
-        spinnerIdiomas = findViewById(R.id.spinnerIdiomas);
-        SpinnerIdiomas adapter = new SpinnerIdiomas(this, R.layout.idioma_row, idiomas, imagenes);
-        spinnerIdiomas.setAdapter(adapter);
-        spinnerIdiomas.setSelection(0);
-        spinnerIdiomas.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        View container = findViewById(R.id.scrollViewLogin);
+        container.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String idiomaSeleccionado = parent.getItemAtPosition(position).toString();
-
-                if (idiomaSeleccionado.equals("Español")) {
-                    setLocal(Login.this, "es");
-                    finish();
-                    startActivity(getIntent());
-
-                } else if (idiomaSeleccionado.equals("Gallego")) {
-                    setLocal(Login.this, "gl");
-                    finish();
-                    startActivity(getIntent());
-
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
+            public boolean onTouch(View v, MotionEvent event) {
+                // Oculta el teclado cuando se toca fuera de los campos de texto
+                Utilidades.ocultarTeclado(Login.this, v);
+                return false;
             }
         });
 
+        opciones.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, Opciones.class);
+                // Iniciar la actividad de Registro
+                startActivity(intent);
+            }
+        });
 
         btInciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +90,6 @@ public class Login extends AppCompatActivity {
 
 
                 login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
-
 
 
             }
@@ -134,7 +129,13 @@ public class Login extends AppCompatActivity {
                         nombreUsuario = usuario.getNombre();
                         String contrasenhaAlmacenada = usuario.getContrasenha();
                         if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
-                            limpiarCampos();
+
+                            if(!checkboxRecordarEmail.isChecked()){
+                                limpiarCampos();
+                            }else{
+                                txtContrasenha.getText().clear();
+                            }
+
                             Toast.makeText(Login.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
 
                             // Crear un Intent para MainActivity y pasar el nombreUsuario
@@ -148,7 +149,7 @@ public class Login extends AppCompatActivity {
                         Toast.makeText(Login.this, "Usuario Incorrecto", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(Login.this, "Error al obtener información del usuario", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Login.this, "Error al insertar los datos de usuario", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -160,18 +161,44 @@ public class Login extends AppCompatActivity {
         });
     }
 
-    public void setLocal(Activity activity, String codIdioma) {
-        Locale locale = new Locale(codIdioma);
-        locale.setDefault(locale);
-        Resources resources = activity.getResources();
-        Configuration config = resources.getConfiguration();
-        config.setLocale(locale);
-        resources.updateConfiguration(config, resources.getDisplayMetrics());
-
-    }
 
     private boolean verificarContrasenha(String contrasenhaIntroducida, String contrasenhaAlmacenada) {
         String contrasenhaCifrada = Registro.cifrarContrasenha(contrasenhaIntroducida);
         return contrasenhaCifrada != null && contrasenhaCifrada.equals(contrasenhaAlmacenada);
     }
+    private static final String NOM_PREFS = "prefs";
+    private static final String EMAIL_KEY = "email";
+
+    public static void guardarEmail(Context context, String email) {
+        SharedPreferences.Editor editor = context.getSharedPreferences(NOM_PREFS, Context.MODE_PRIVATE).edit();
+        editor.putString(EMAIL_KEY, email);
+        editor.apply();
+    }
+
+    public static String obtenerEmail(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(NOM_PREFS, Context.MODE_PRIVATE);
+        return prefs.getString(EMAIL_KEY, "");
+    }
+
+    public static void manejarCheckBox(CheckBox checkBox, EditText editText) {
+        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                String email = editText.getText().toString();
+                if (Utilidades.validarFormatoCorreo(email)) {
+                    guardarEmail(editText.getContext(), email);
+                } else {
+                    checkBox.setChecked(false); // Desmarcar el checkbox si el email no es válido
+                    Toast.makeText(editText.getContext(), "Por favor, introduce un email válido", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                guardarEmail(editText.getContext(), "");
+            }
+        });
+
+        String emailGuardado = obtenerEmail(editText.getContext());
+        editText.setText(emailGuardado);
+        checkBox.setChecked(!emailGuardado.isEmpty());
+    }
+
+
 }

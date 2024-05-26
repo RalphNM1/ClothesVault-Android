@@ -8,7 +8,7 @@ public class Producto {
     private Double precio;
     private Integer stock;
     private String talla;
-    private byte[] imagen;
+    private String imagen_url; // Cambiado de byte[] a String
     private Categoria categoria; // Nueva propiedad
     private Proveedor proveedor; // Nueva propiedad
 
@@ -61,12 +61,12 @@ public class Producto {
         this.talla = talla;
     }
 
-    public byte[] getImagen() {
-        return imagen;
+    public String getImagenUrl() {
+        return imagen_url;
     }
 
-    public void setImagen(byte[] imagen) {
-        this.imagen = imagen;
+    public void setImagenUrl(String imagen_url) {
+        this.imagen_url = imagen_url;
     }
 
     public Categoria getCategoria() {

@@ -10,6 +10,7 @@ constraintlayout = "2.1.4"
 volley = "1.2.1"
 retrofit = "2.11.0"
 converterGson = "2.11.0"
+glide = "5.0.0-rc01"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -22,6 +23,7 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
