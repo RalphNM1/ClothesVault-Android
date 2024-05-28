@@ -90,7 +90,7 @@ public class Login extends ActividadBase {
 
 
                 login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
-
+                Utilidades.ocultarTeclado(Login.this,v);
 
             }
         });

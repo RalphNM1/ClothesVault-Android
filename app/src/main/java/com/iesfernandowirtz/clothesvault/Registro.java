@@ -3,6 +3,8 @@ package com.iesfernandowirtz.clothesvault;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -41,6 +44,7 @@ public class Registro extends ActividadBase {
     EditText txtCp;
     Button btRegistrar;
     ImageView btAtras;
+    TextView passwordValidation;  // TextView para mostrar mensajes de validación de la contraseña
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,30 +79,59 @@ public class Registro extends ActividadBase {
             }
         });
 
+        txtContrasenha.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                validarContrasenha(txtContrasenha.getText().toString(), txtContrasenha);
+            }
+        });
+
+
         btRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    Usuario u = new Usuario();
-                    u.setNombre(txtNombre.getText().toString());
-                    u.setApellido1(txtPrimerApellido.getText().toString());
-                    u.setApellido2(txtSegundoApellido.getText().toString());
-                    String email = txtEmail.getText().toString().toLowerCase();
-                    if (!Utilidades.validarFormatoCorreo(email)) {
-                        Toast.makeText(Registro.this, "Ingrese un correo electrónico válido", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    u.setEmail(email);
-                    u.setContrasenha(cifrarContrasenha(txtContrasenha.getText().toString())); // CIFRAR CONTRASEÑA
-                    u.setDireccion(txtDireccion.getText().toString());
-                    u.setCp(Integer.parseInt(txtCp.getText().toString()));
+                    if (comprobarCampos()) {
 
-                    // Comprobar que el usuario no existe
-                    verificarUsuarioExistente(u);
+
+                        Usuario u = new Usuario();
+                        u.setNombre(txtNombre.getText().toString());
+                        u.setApellido1(txtPrimerApellido.getText().toString());
+                        u.setApellido2(txtSegundoApellido.getText().toString());
+                        String email = txtEmail.getText().toString().toLowerCase();
+                        if (!Utilidades.validarFormatoCorreo(email)) {
+                            txtEmail.requestFocus();
+                            txtEmail.setError("Ingrese un correo electrónico válido");
+                            return;
+                        }
+                        u.setEmail(email);
+
+                        if (!validarContrasenha(txtContrasenha.getText().toString(), txtContrasenha)) {
+                            return;
+                        }
+
+                        u.setContrasenha(cifrarContrasenha(txtContrasenha.getText().toString())); // CIFRAR CONTRASEÑA
+                        u.setDireccion(txtDireccion.getText().toString());
+                        u.setCp(Integer.parseInt(txtCp.getText().toString()));
+
+                        // Comprobar que el usuario no existe
+                        verificarUsuarioExistente(u);
+                    }
+
                 } catch (NumberFormatException nfe) {
                     Toast.makeText(Registro.this, "Introduzca todos los campos", Toast.LENGTH_SHORT).show();
                 }
+
             }
+
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -106,6 +139,53 @@ public class Registro extends ActividadBase {
             window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorFondo));
         }
     }
+
+    private void mostrarError(EditText editText) {
+        editText.requestFocus();
+        editText.setError("Campo Obligatorio");
+    }
+
+    private boolean comprobarCampos() {
+        boolean todoOK = true;
+
+        if (txtNombre.getText().toString().isEmpty()) {
+            mostrarError(txtNombre);
+             todoOK = false;
+        }
+        if (txtPrimerApellido.getText().toString().isEmpty()) {
+            mostrarError(txtPrimerApellido);
+            todoOK = false;
+        }
+
+        if (txtSegundoApellido.getText().toString().isEmpty()) {
+            mostrarError(txtSegundoApellido);
+            todoOK = false;
+        }
+
+        if (txtEmail.getText().toString().isEmpty()) {
+            mostrarError(txtEmail);
+            todoOK = false;
+        }
+
+        if (txtContrasenha.getText().toString().isEmpty()) {
+            mostrarError(txtContrasenha);
+            todoOK = false;
+        }
+
+        if (txtDireccion.getText().toString().isEmpty()) {
+            mostrarError(txtDireccion);
+            todoOK = false;
+        }
+
+        if (txtCp.getText().toString().isEmpty()) {
+            mostrarError(txtCp);
+            todoOK = false;
+        }
+
+        return todoOK;
+
+    }
+
 
     private void verificarUsuarioExistente(Usuario u) {
         servicioUsuario = Apis.getServicioUsuario();
@@ -137,6 +217,37 @@ public class Registro extends ActividadBase {
         });
     }
 
+    private boolean validarContrasenha(String password, EditText editText) {
+        StringBuilder validationMessage = new StringBuilder();
+        boolean isValid = true;
+
+        if (!password.matches(".*[a-z].*")) {
+            validationMessage.append("- Debe tener al menos una letra minúscula.\n");
+            isValid = false;
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            validationMessage.append("- Debe tener al menos una letra mayúscula.\n");
+            isValid = false;
+        }
+        if (!password.matches(".*\\d.*")) {
+            validationMessage.append("- Debe tener al menos un número.\n");
+            isValid = false;
+        }
+        if (password.length() < 8) {
+            validationMessage.append("- Debe tener al menos 8 caracteres.\n");
+            isValid = false;
+        }
+
+        // Añade tu lógica para verificar contraseñas comunes aquí, si tienes una lista de contraseñas comunes.
+
+        if (!isValid) {
+            editText.setError(validationMessage.toString().trim());
+        } else {
+            editText.setError(null);
+        }
+
+        return isValid;
+    }
 
     public void limpiarCampos() { // Limpiar todos los campos de la pantalla
         txtNombre.setText("");
@@ -147,7 +258,6 @@ public class Registro extends ActividadBase {
         txtDireccion.setText("");
         txtCp.setText("");
     }
-
 
 
     public void addUsuario(Usuario u) {
