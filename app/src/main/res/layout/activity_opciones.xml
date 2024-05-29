@@ -159,6 +159,5 @@
             app:layout_constraintTop_toBottomOf="@+id/tvCambiarIdioma"
             app:layout_constraintVertical_bias="0.008" />
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

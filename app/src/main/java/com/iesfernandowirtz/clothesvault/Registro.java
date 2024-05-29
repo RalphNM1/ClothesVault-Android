@@ -1,5 +1,8 @@
 package com.iesfernandowirtz.clothesvault;
 
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastSuccess;
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,11 +16,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
@@ -44,7 +43,6 @@ public class Registro extends ActividadBase {
     EditText txtCp;
     Button btRegistrar;
     ImageView btAtras;
-    TextView passwordValidation;  // TextView para mostrar mensajes de validación de la contraseña
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +88,9 @@ public class Registro extends ActividadBase {
 
             @Override
             public void afterTextChanged(Editable s) {
-                validarContrasenha(txtContrasenha.getText().toString(), txtContrasenha);
+                if(!txtContrasenha.getText().toString().isEmpty()){
+                    validarContrasenha(txtContrasenha.getText().toString(), txtContrasenha);
+                }
             }
         });
 
@@ -127,7 +127,7 @@ public class Registro extends ActividadBase {
                     }
 
                 } catch (NumberFormatException nfe) {
-                    Toast.makeText(Registro.this, "Introduzca todos los campos", Toast.LENGTH_SHORT).show();
+                    mostrarToastError(getApplicationContext(), "Introduzca todos los campos");
                 }
 
             }
@@ -188,7 +188,7 @@ public class Registro extends ActividadBase {
 
 
     private void verificarUsuarioExistente(Usuario u) {
-        servicioUsuario = Apis.getServicioUsuario();
+        servicioUsuario = Apis.getServicioUsuario(this);
 
         // Construir la URL completa con el correo electrónico proporcionado
         String email = u.getEmail();
@@ -201,11 +201,11 @@ public class Registro extends ActividadBase {
             public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
 
                 if (response.body().isEmpty()) {
-                    Toast.makeText(Registro.this, "Creando Usuario...", Toast.LENGTH_SHORT).show();
+                    mostrarToastSuccess(getApplicationContext(), "Creando Usuario...");
                     addUsuario(u);
                     limpiarCampos();
                 } else {
-                    Toast.makeText(Registro.this, "El usuario ya existe", Toast.LENGTH_SHORT).show();
+                    mostrarToastError(getApplicationContext(), "El usuario ya existe");
 
                 }
             }
@@ -261,14 +261,14 @@ public class Registro extends ActividadBase {
 
 
     public void addUsuario(Usuario u) {
-        servicioUsuario = Apis.getServicioUsuario();
+        servicioUsuario = Apis.getServicioUsuario(this);
         Call<Usuario> call = servicioUsuario.addUsuario(u);
 
         call.enqueue(new Callback<Usuario>() {
             @Override
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
                 if (response != null) {
-                    Toast.makeText(Registro.this, "Se agrego con éxito", Toast.LENGTH_SHORT).show();
+                    mostrarToastSuccess(getApplicationContext(), "Se agrego con éxito");
 
                 }
             }

@@ -1,5 +1,7 @@
 package com.iesfernandowirtz.clothesvault;
 
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +10,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -19,9 +25,11 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 
 import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
@@ -43,11 +51,12 @@ public class Login extends ActividadBase {
     CheckBox checkboxRecordarEmail;
 
     public String nombreUsuario;
+    CargandoAlert cargandoAlert = new CargandoAlert(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Apis.setDireccionIP(this);
         setContentView(R.layout.activity_login);
 
         Button btInciarSesion = findViewById(R.id.btInciarSesion);
@@ -79,6 +88,8 @@ public class Login extends ActividadBase {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Login.this, Opciones.class);
+                txtContrasenha.getText().clear();
+
                 // Iniciar la actividad de Registro
                 startActivity(intent);
             }
@@ -87,11 +98,8 @@ public class Login extends ActividadBase {
         btInciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
-                Utilidades.ocultarTeclado(Login.this,v);
-
+                Utilidades.ocultarTeclado(Login.this, v);
             }
         });
 
@@ -99,14 +107,13 @@ public class Login extends ActividadBase {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Login.this, Registro.class);
+                txtContrasenha.getText().clear();
+
                 // Iniciar la actividad de Registro
                 startActivity(intent);
             }
         });
-
-
     }
-
 
     public void limpiarCampos() { // Limpiar todos los campos de la pantalla
         txtEmail.getText().clear();
@@ -114,7 +121,7 @@ public class Login extends ActividadBase {
     }
 
     private void login(String email, String contrasenha) {
-        servicioUsuario = Apis.getServicioUsuario();
+        servicioUsuario = Apis.getServicioUsuario(this);
 
         // Construir la URL completa con el correo electrónico proporcionada
         Call<List<Usuario>> call = servicioUsuario.getUsuarioXEmail(email);
@@ -130,42 +137,48 @@ public class Login extends ActividadBase {
                         String contrasenhaAlmacenada = usuario.getContrasenha();
                         if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
 
-                            if(!checkboxRecordarEmail.isChecked()){
+                            if (!checkboxRecordarEmail.isChecked()) {
                                 limpiarCampos();
-                            }else{
+                            } else {
                                 txtContrasenha.getText().clear();
                             }
 
-                            Toast.makeText(Login.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                            cargandoAlert.startAlertDialog();
 
-                            // Crear un Intent para MainActivity y pasar el nombreUsuario
-                            Intent intent = new Intent(Login.this, MainActivity.class);
-                            intent.putExtra("nombreUsuario", nombreUsuario);
-                            startActivity(intent);
+                            // Usar un Handler para retrasar la ejecución del Intent
+                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                                cargandoAlert.closeAlertDialog();
+                                Intent intent = new Intent(Login.this, MainActivity.class);
+                                intent.putExtra("nombreUsuario", nombreUsuario);
+                                startActivity(intent);
+                            }, 2000);
+
                         } else {
-                            Toast.makeText(Login.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show();
+                            mostrarToastError(getApplicationContext(), "Contraseña incorrecta");
                         }
                     } else {
-                        Toast.makeText(Login.this, "Usuario Incorrecto", Toast.LENGTH_SHORT).show();
+
+                        mostrarToastError(getApplicationContext(),"Usuario incorrecto");
+
                     }
                 } else {
-                    Toast.makeText(Login.this, "Error al insertar los datos de usuario", Toast.LENGTH_SHORT).show();
+                    mostrarToastError(getApplicationContext(),"Email o contraseña incorrectos");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
                 Log.e("Error", throwable.toString());
-                Toast.makeText(Login.this, "Error de red", Toast.LENGTH_SHORT).show();
+                mostrarToastError(getApplicationContext(),"Error de red");
             }
         });
     }
-
 
     private boolean verificarContrasenha(String contrasenhaIntroducida, String contrasenhaAlmacenada) {
         String contrasenhaCifrada = Registro.cifrarContrasenha(contrasenhaIntroducida);
         return contrasenhaCifrada != null && contrasenhaCifrada.equals(contrasenhaAlmacenada);
     }
+
     private static final String NOM_PREFS = "prefs";
     private static final String EMAIL_KEY = "email";
 
@@ -180,7 +193,7 @@ public class Login extends ActividadBase {
         return prefs.getString(EMAIL_KEY, "");
     }
 
-    public static void manejarCheckBox(CheckBox checkBox, EditText editText) {
+    public void manejarCheckBox(CheckBox checkBox, EditText editText) {
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 String email = editText.getText().toString();
@@ -188,7 +201,8 @@ public class Login extends ActividadBase {
                     guardarEmail(editText.getContext(), email);
                 } else {
                     checkBox.setChecked(false); // Desmarcar el checkbox si el email no es válido
-                    Toast.makeText(editText.getContext(), "Por favor, introduce un email válido", Toast.LENGTH_SHORT).show();
+                    mostrarToastError(getApplicationContext(),"Por favor, introduce un email válido");
+
                 }
             } else {
                 guardarEmail(editText.getContext(), "");
@@ -199,6 +213,6 @@ public class Login extends ActividadBase {
         editText.setText(emailGuardado);
         checkBox.setChecked(!emailGuardado.isEmpty());
     }
-
-
 }
+
+
