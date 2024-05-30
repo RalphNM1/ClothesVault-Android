@@ -7,6 +7,8 @@ public class Producto {
     private String descripcion;
     private Double precio;
     private Integer stock;
+
+    private String marca;
     private String talla;
     private String imagen_url; // Cambiado de byte[] a String
     private Categoria categoria; // Nueva propiedad
@@ -51,6 +53,15 @@ public class Producto {
 
     public void setStock(Integer stock) {
         this.stock = stock;
+    }
+
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
     }
 
     public String getTalla() {

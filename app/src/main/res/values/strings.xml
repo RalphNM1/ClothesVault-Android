@@ -24,5 +24,17 @@
     <string name="cambiarIP">Cambiar la IP</string>
     <string name="opciones">Opciones</string>
 
+    <string-array name="categorias">
+        <item>Todas</item>
+        <item>Ropa</item>
+        <item>Accesorios</item>
+        <item>Calzado</item>
+    </string-array>
 
+    <string-array name="marcas">
+        <item>Todas</item>
+        <item>Marca A</item>
+        <item>Marca B</item>
+        <item>Marca C</item>
+    </string-array>
 </resources>
