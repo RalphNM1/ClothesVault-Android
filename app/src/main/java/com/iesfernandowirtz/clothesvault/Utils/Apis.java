@@ -32,4 +32,11 @@ public class Apis {
         }
         return Cliente.getCliente(URL_001).create(ServicioProducto.class);
     }
+
+    public static ServicioCategoria getServicioCategoria(Context context) {
+        if (URL_001 == null) {
+            setDireccionIP(context);
+        }
+        return Cliente.getCliente(URL_001).create(ServicioCategoria.class);
+    }
 }

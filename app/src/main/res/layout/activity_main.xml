@@ -70,4 +70,14 @@
         android:layout_height="match_parent"
         android:layout_below="@id/tvSaludo"
         android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/textoSinCoincidencias"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="- No hay productos disponibles -"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 </RelativeLayout>

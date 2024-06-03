@@ -14,6 +14,10 @@ public class Producto {
     private Categoria categoria; // Nueva propiedad
     private Proveedor proveedor; // Nueva propiedad
 
+
+
+
+
     // Getters y setters para todos los atributos
     public Long getId() {
         return id;
