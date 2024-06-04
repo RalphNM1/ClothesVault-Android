@@ -1,0 +1,141 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/productoImagen"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/imagen_test" />
+
+    <TextView
+        android:id="@+id/productoNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp"
+        android:text="Nombre del producto"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp"
+        />
+
+    <TextView
+        android:id="@+id/productoDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/allproyectfont"
+        android:paddingTop="4dp"
+        android:paddingBottom="2dp"
+        android:text="Descripcion del producto"
+        android:textColor="#757575"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="6dp"
+
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp"
+
+        >
+
+        <TextView
+            android:id="@+id/productoPrecio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/allproyectfont"
+            android:text="0.00 €"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/productoTalla"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/allproyectfont"
+            android:paddingStart="8dp"
+            android:text="Talla"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearCantidad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp"
+
+    >
+
+        <Button
+            android:id="@+id/btnmenos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/allproyectfont"
+            android:text="-"
+            android:layout_marginRight="6dp"
+            android:backgroundTint="#EB09184D"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- EditText con ancho 0dp y peso 1 para rellenar el espacio sobrante -->
+        <EditText
+            android:id="@+id/etCantidad"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/allproyectfont"
+            android:text="0"
+            android:backgroundTint="#9909184D"
+            android:textSize="24sp"
+            android:inputType="number"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:background="@drawable/edittextesqredondtrans"
+            />
+
+        <Button
+            android:id="@+id/btnmas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/allproyectfont"
+            android:text="+"
+            android:layout_marginLeft="6dp"
+
+            android:backgroundTint="#EB09184D"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnComprar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/allproyectfont"
+            android:text="Comprar"
+            android:backgroundTint="#EB09184D"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+</LinearLayout>
+

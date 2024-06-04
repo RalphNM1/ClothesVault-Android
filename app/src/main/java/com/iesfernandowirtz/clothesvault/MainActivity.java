@@ -11,18 +11,18 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.iesfernandowirtz.clothesvault.Modelo.Categoria;
 import com.iesfernandowirtz.clothesvault.Modelo.Producto;
@@ -30,6 +30,7 @@ import com.iesfernandowirtz.clothesvault.Utils.Apis;
 import com.iesfernandowirtz.clothesvault.Utils.ServicioCategoria;
 import com.iesfernandowirtz.clothesvault.Utils.ServicioProducto;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,16 +39,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends ActividadBase {
+public class MainActivity extends ActividadBase  implements AdaptadorProducto.OnProductoClickListener {
 
     TextView saludo;
     ServicioProducto servicioProducto;
-
     ServicioCategoria servicioCategoria;
     private RecyclerView recyclerView;
     private AdaptadorProducto adaptadorProducto;
     private List<Producto> productoList;
-    private List<Producto> productoListFiltrada;
     private String categoriaSeleccionada;
     private String marcaSeleccionada;
     private List<String> categorias;
@@ -55,6 +54,8 @@ public class MainActivity extends ActividadBase {
     private List<Categoria> categoriasList; // Lista de categorías con IDs
     private int posicionCategoriaSeleccionada = -1; // Inicialmente sin selección
     private int posicionMarcaSeleccionada = -1; // Inicialmente sin selección
+    private TextView tvRespuesta;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,12 +64,12 @@ public class MainActivity extends ActividadBase {
         saludo = findViewById(R.id.tvSaludo);
         servicioProducto = Apis.getServicioProducto(this);
         servicioCategoria = Apis.getServicioCategoria(this);
-
+        tvRespuesta = findViewById(R.id.tvRespuesta);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorToolbar));
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorFondo));
         }
 
         // Obtener el nombre de usuario del Intent
@@ -78,7 +79,6 @@ public class MainActivity extends ActividadBase {
         String idiomaActual = Locale.getDefault().getLanguage();
         String textoSaludo = idiomaActual.equals("es") ? "¡Hola, " : "¡Ola, ";
 
-        // Usar el nombreUsuario como sea necesario, por ejemplo, para mostrar un saludo
         if (nombreUsuario != null) {
             saludo.setText(textoSaludo + nombreUsuario + "!");
         }
@@ -86,19 +86,16 @@ public class MainActivity extends ActividadBase {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 2)); // 2 columnas
 
-        productoListFiltrada = new ArrayList<>();
         productoList = new ArrayList<>();
 
-        // Configura el adaptador con la lista vacía inicialmente
-        adaptadorProducto = new AdaptadorProducto(this, productoListFiltrada);
+        adaptadorProducto = new AdaptadorProducto(this, productoList);
+        adaptadorProducto.setOnProductoClickListener(this);
         recyclerView.setAdapter(adaptadorProducto);
 
-        // Realiza la solicitud HTTP para obtener los productos desde la API
         obtenerProductosDesdeAPI();
         obtenerCategoriasDesdeAPI();
         obtenerMarcasDesdeAPI();
 
-        // Configurar el click listener para el iconFiltro
         ImageView iconFiltro = findViewById(R.id.iconFiltro);
         iconFiltro.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +105,70 @@ public class MainActivity extends ActividadBase {
         });
     }
 
+
+    // Método para mostrar el diálogo con la información del producto
+    private void mostrarDialogoProducto(Producto producto) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_producto_comprar);
+
+        // Obtener referencias a los elementos del diálogo
+        ImageView imageView = dialog.findViewById(R.id.productoImagen);
+        TextView nombreTextView = dialog.findViewById(R.id.productoNombre);
+        TextView descripcionTextView = dialog.findViewById(R.id.productoDesc);
+        TextView precioTextView = dialog.findViewById(R.id.productoPrecio);
+        TextView tallaTextView = dialog.findViewById(R.id.productoTalla);
+        EditText cantidad = dialog.findViewById(R.id.etCantidad);
+
+        Button btnmas = (Button) dialog.findViewById(R.id.btnmas);
+        Button btnmenos = (Button) dialog.findViewById(R.id.btnmenos);
+        Button btnComprar = (Button) dialog.findViewById(R.id.btnComprar);
+
+
+        // Configurar los elementos del diálogo con la información del producto
+        Glide.with(this)
+                .load(producto.getImagenUrl())
+                .placeholder(R.drawable.imagen_test)
+                .error(R.drawable.imagen_test)
+                .into(imageView);
+
+        nombreTextView.setText(producto.getNombre());
+        descripcionTextView.setText(producto.getDescripcion());
+
+        DecimalFormat df = new DecimalFormat("#.00"); // Formato para dos decimales
+        String precioFormateado = df.format(producto.getPrecio());
+        precioTextView.setText("Precio: " + precioFormateado + " €");
+        tallaTextView.setText("Talla: " + producto.getTalla());
+
+
+
+        btnmas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cantidadActual = Integer.parseInt(cantidad.getText().toString());
+                cantidadActual++;
+                cantidad.setText(String.valueOf(cantidadActual));
+            }
+        });
+        btnmenos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cantidadActual = Integer.parseInt(cantidad.getText().toString());
+                if (cantidadActual > 0) {
+                    cantidadActual--;
+                    cantidad.setText(String.valueOf(cantidadActual));
+                }
+            }
+        });
+
+        // Mostrar el diálogo
+        dialog.show();
+    }
+    @Override
+    public void onProductoClick(Producto producto) {
+        mostrarDialogoProducto(producto);
+    }
+
+
     private void obtenerProductosDesdeAPI() {
         Call<List<Producto>> call = servicioProducto.getProducto();
 
@@ -115,16 +176,11 @@ public class MainActivity extends ActividadBase {
             @Override
             public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Registro de la respuesta JSON en la consola
-                    Log.d("Respuesta JSON", new Gson().toJson(response.body()));
-
                     productoList.clear();
                     productoList.addAll(response.body());
-
-                    productoListFiltrada.addAll(productoList);
-                    adaptadorProducto.notifyDataSetChanged();
+                    verificarYMostrarRespuesta();
                 } else {
-                    Log.e("Error", "Error1");
+                    Log.e("Error", "Error al obtener productos");
                 }
             }
 
@@ -138,15 +194,12 @@ public class MainActivity extends ActividadBase {
     private void obtenerProductosDesdeAPI(Long categoriaId, String marca) {
         Call<List<Producto>> call;
         if (marca != null && marca.equals("Todas")) {
-            // Si la marca es "Todas", obtenemos todos los productos de la categoría especificada
             if (categoriaId != null) {
                 call = servicioProducto.getProductosPorCategoria(categoriaId);
             } else {
-                // Si no se especifica una categoría, obtenemos todos los productos
                 call = servicioProducto.getProducto();
             }
         } else {
-            // Si se especifica una marca específica, filtramos por categoría y marca
             call = servicioProducto.getProductosPorCategoria(categoriaId, marca);
         }
 
@@ -156,9 +209,7 @@ public class MainActivity extends ActividadBase {
                 if (response.isSuccessful() && response.body() != null) {
                     productoList.clear();
                     productoList.addAll(response.body());
-                    productoListFiltrada.clear();
-                    productoListFiltrada.addAll(productoList);
-                    adaptadorProducto.notifyDataSetChanged();
+                    verificarYMostrarRespuesta();
                 } else {
                     Log.e("Error", response.toString());
                 }
@@ -171,7 +222,14 @@ public class MainActivity extends ActividadBase {
         });
     }
 
-
+    private void verificarYMostrarRespuesta() {
+        if (productoList.isEmpty()) {
+            tvRespuesta.setVisibility(View.VISIBLE);
+        } else {
+            tvRespuesta.setVisibility(View.INVISIBLE);
+        }
+        adaptadorProducto.notifyDataSetChanged();
+    }
 
     private void obtenerCategoriasDesdeAPI() {
         Call<List<Categoria>> call = servicioCategoria.getCategorias();
@@ -182,7 +240,7 @@ public class MainActivity extends ActividadBase {
                 if (response.isSuccessful() && response.body() != null) {
                     categorias = new ArrayList<>();
                     categorias.add("Todas");
-                    categoriasList = response.body(); // Almacena la lista de categorías
+                    categoriasList = response.body();
                     for (Categoria categoria : categoriasList) {
                         categorias.add(categoria.getNombre());
                     }
@@ -209,7 +267,6 @@ public class MainActivity extends ActividadBase {
                     marcas = new ArrayList<>();
                     marcas.add("Todas");
                     marcas.addAll(response.body());
-
                 } else {
                     Log.e("Error", "Error al obtener marcas");
                     Log.e("Error", response.toString());
@@ -222,28 +279,7 @@ public class MainActivity extends ActividadBase {
             }
         });
     }
-    private void obtenerCategorias() {
-        Call<List<Categoria>> call = servicioCategoria.getCategorias();
 
-        call.enqueue(new Callback<List<Categoria>>() {
-            @Override
-            public void onResponse(Call<List<Categoria>> call, Response<List<Categoria>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-
-                    Log.d("Respuesta JSON", new Gson().toJson(response.body()));
-
-                } else {
-                    Log.e("Error", "Error al obtener categorías");
-                    Log.e("Error", response.toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Categoria>> call, Throwable t) {
-                Log.e("Error", t.getMessage());
-            }
-        });
-    }
     private void mostrarDialogoFiltros() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_filtros);
@@ -253,7 +289,6 @@ public class MainActivity extends ActividadBase {
         Button btnAplicarFiltros = dialog.findViewById(R.id.btnAplicarFiltros);
         Button btnQuitarFiltros = dialog.findViewById(R.id.btnQuitarFiltros);
 
-        // Configurar los spinners con datos de la API
         if (categorias != null && marcas != null) {
             ArrayAdapter<String> adapterCategorias = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categorias);
             adapterCategorias.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -263,7 +298,6 @@ public class MainActivity extends ActividadBase {
             adapterMarcas.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerMarcas.setAdapter(adapterMarcas);
 
-            // Restaurar el estado de los spinners
             if (posicionCategoriaSeleccionada != -1) {
                 spinnerCategorias.setSelection(posicionCategoriaSeleccionada);
             }
@@ -278,27 +312,24 @@ public class MainActivity extends ActividadBase {
             public void onClick(View v) {
                 categoriaSeleccionada = spinnerCategorias.getSelectedItem().toString();
                 marcaSeleccionada = spinnerMarcas.getSelectedItem().toString();
-                // Guardar las posiciones seleccionadas
                 posicionCategoriaSeleccionada = spinnerCategorias.getSelectedItemPosition();
                 posicionMarcaSeleccionada = spinnerMarcas.getSelectedItemPosition();
 
-                if (!categoriaSeleccionada.equals("Todas")) {
-                    // Obtener el ID de la categoría seleccionada
+                if (categoriaSeleccionada.equals("Todas") && marcaSeleccionada.equals("Todas")) {
+                    obtenerProductosDesdeAPI();
+                } else if (!categoriaSeleccionada.equals("Todas")) {
                     Long categoriaId = null;
-                    for (Categoria categoria : categoriasList) { // Buscar el ID de la categoría seleccionada
+                    for (Categoria categoria : categoriasList) {
                         if (categoria.getNombre().equals(categoriaSeleccionada)) {
                             categoriaId = categoria.getId();
                             break;
                         }
                     }
-                    if (categoriaId != null) {
-                        obtenerProductosDesdeAPI(categoriaId, marcaSeleccionada);
-                    }
+                    obtenerProductosDesdeAPI(categoriaId, marcaSeleccionada);
                 } else {
-                    obtenerProductosDesdeAPI(null, marcaSeleccionada); // Cargar todos los productos si se selecciona "Todas"
+                    obtenerProductosDesdeAPI(null, marcaSeleccionada);
                 }
 
-                aplicarFiltros();
                 dialog.dismiss();
             }
         });
@@ -306,39 +337,15 @@ public class MainActivity extends ActividadBase {
         btnQuitarFiltros.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                categoriaSeleccionada = null;
-                marcaSeleccionada = null;
-                posicionCategoriaSeleccionada = -1; // Reiniciar la posición de la selección
-                posicionMarcaSeleccionada = -1; // Reiniciar la posición de la selección
+                spinnerCategorias.setSelection(0); // Seleccionar "Todas"
+                spinnerMarcas.setSelection(0); // Seleccionar "Todas"
+                posicionCategoriaSeleccionada = 0;
+                posicionMarcaSeleccionada = 0;
                 obtenerProductosDesdeAPI();
-                productoListFiltrada.clear();
-                productoList.clear();// Limpiar la lista filtrada
-                productoListFiltrada.addAll(productoList); // Actualizar la lista filtrada con todos los productos
-                adaptadorProducto.notifyDataSetChanged();
                 dialog.dismiss();
             }
         });
 
-
         dialog.show();
     }
-
-
-    private void aplicarFiltros() {
-        productoListFiltrada.clear();
-        for (Producto producto : productoList) {
-            boolean coincideCategoria = (categoriaSeleccionada == null || categoriaSeleccionada.equals("Todas") ||
-                    (producto.getCategoria() != null && producto.getCategoria().getNombre().equals(categoriaSeleccionada)));
-
-            boolean coincideMarca = (marcaSeleccionada == null || marcaSeleccionada.equals("Todas") ||
-                    producto.getMarca().equals(marcaSeleccionada));
-
-            if (coincideCategoria && coincideMarca) {
-                productoListFiltrada.add(producto);
-            }
-        }
-        adaptadorProducto.notifyDataSetChanged();
-    }
-
-
 }

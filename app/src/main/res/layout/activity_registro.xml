@@ -193,7 +193,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="32dp"
-            android:backgroundTint="#7B5BF2"
+            android:backgroundTint="#EB09184D"
             android:fontFamily="@font/allproyectfont"
             android:text="@string/registrarse"
             android:textAlignment="center"

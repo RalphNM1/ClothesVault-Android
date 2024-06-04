@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:layout_alignParentTop="true"
-        android:background="#80000000"
+        android:background="#EB09184D"
         android:minHeight="?attr/actionBarSize">
 
         <RelativeLayout
@@ -37,15 +37,15 @@
                     android:id="@+id/iconCarrito"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/carrito" />
+                    android:src="@drawable/carritoblanco" />
 
                 <ImageView
                     android:id="@+id/iconUsuario"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="12dp"
-                    android:layout_marginRight="26dp"
-                    android:src="@drawable/usuario" />
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/usuarioblanco2" />
             </LinearLayout>
         </RelativeLayout>
     </androidx.appcompat.widget.Toolbar>
@@ -64,6 +64,22 @@
         android:textStyle="bold" />
 
     <!-- RecyclerView para el catálogo -->
+
+    <TextView
+        android:id="@+id/tvRespuesta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:layout_marginTop="79dp"
+        android:fontFamily="@font/allproyectfont"
+        android:text="- No hay productos - "
+        android:textColor="#8F8F8F"
+        android:textSize="42dp"
+        android:textStyle="bold"
+        android:visibility="invisible"
+        android:textAlignment="center"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
@@ -71,13 +87,4 @@
         android:layout_below="@id/tvSaludo"
         android:padding="8dp" />
 
-    <TextView
-        android:id="@+id/textoSinCoincidencias"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="- No hay productos disponibles -"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="16sp"
-        android:layout_gravity="center"
-        android:visibility="gone" />
 </RelativeLayout>
