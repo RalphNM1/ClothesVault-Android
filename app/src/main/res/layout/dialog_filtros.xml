@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="#EDF2FA"
+    >
 
     <TextView
         android:layout_width="match_parent"
@@ -12,12 +14,16 @@
         android:text="Categoría"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="8dp"
+        android:textColor="@color/black"
+        />
 
     <Spinner
         android:id="@+id/spinnerCategorias"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        />
 
     <TextView
         android:layout_width="match_parent"
@@ -26,12 +32,16 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:paddingTop="16dp"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="8dp"
+        android:textColor="@color/black"
+        />
 
     <Spinner
         android:id="@+id/spinnerMarcas"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,7 +55,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="#EB09184D"
-            android:text="Aplicar" />
+            android:text="Aplicar"
+            android:textColor="@color/white"
+            />
 
         <Button
             android:id="@+id/btnQuitarFiltros"
@@ -53,6 +65,9 @@
             android:layout_height="wrap_content"
             android:backgroundTint="#EB09184D"
             android:text="Quitar"
-            android:layout_marginLeft="8dp" />
+            android:layout_marginLeft="8dp"
+            android:textColor="@color/white"
+
+            />
     </LinearLayout>
 </LinearLayout>

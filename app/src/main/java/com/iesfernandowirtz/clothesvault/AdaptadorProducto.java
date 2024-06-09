@@ -1,39 +1,40 @@
 package com.iesfernandowirtz.clothesvault;
 
 import android.content.Context;
-import android.util.Log;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.iesfernandowirtz.clothesvault.Modelo.Producto;
+import com.iesfernandowirtz.clothesvault.modelo.modeloProducto;
 
 import java.text.DecimalFormat;
 import java.util.List;
+
 public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.ProductoViewHolder> {
 
-
-    // Interfaz para manejar el clic del producto
     public interface OnProductoClickListener {
-        void onProductoClick(Producto producto);
+        void onProductoClick(modeloProducto producto);
     }
 
     private OnProductoClickListener productoClickListener;
 
-    // Método para establecer el oyente de clic del producto
     public void setOnProductoClickListener(OnProductoClickListener listener) {
         this.productoClickListener = listener;
     }
 
     private Context context;
-    private List<Producto> productoList;
+    private List<modeloProducto> productoList;
 
-    public AdaptadorProducto(Context context, List<Producto> productoList) {
+    public AdaptadorProducto(Context context, List<modeloProducto> productoList) {
         this.context = context;
         this.productoList = productoList;
     }
@@ -47,21 +48,27 @@ public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.Pr
 
     @Override
     public void onBindViewHolder(@NonNull ProductoViewHolder holder, int position) {
-        Producto producto = productoList.get(position);
+        modeloProducto producto = productoList.get(position);
         holder.productoNombre.setText(producto.getNombre());
-        DecimalFormat df = new DecimalFormat("#.00"); // Formato para dos decimales
+        DecimalFormat df = new DecimalFormat("#.00");
         String precioFormateado = df.format(producto.getPrecio());
         holder.productoPrecio.setText(precioFormateado + " €");
-        holder.productoTalla.setText(producto.getTalla()); // Mostrar la talla
+        holder.productoTalla.setText(producto.getTalla());
 
-        // Cargar la imagen desde la URL usando Glide
-        Glide.with(context)
-                .load(producto.getImagenUrl()) // URL de la imagen
-                .placeholder(R.drawable.imagen_test) // Imagen de carga mientras se descarga la imagen
-                .error(R.drawable.imagen_test) // Imagen de error si la carga falla
-                .into(holder.productoImagen); // ImageView donde se mostrará la imagen
+        String imagenBase64 = producto.getImagen();
+        if (imagenBase64 != null && !imagenBase64.isEmpty()) {
+            byte[] imagenBytes = Base64.decode(imagenBase64, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imagenBytes, 0, imagenBytes.length);
 
-        // Establecer el clic en el elemento de la lista
+            Glide.with(context)
+                    .load(bitmap)
+                    .placeholder(R.drawable.imagen_test)
+                    .error(R.drawable.imagen_test)
+                    .into(holder.productoImagen);
+        } else {
+            holder.productoImagen.setImageResource(R.drawable.imagen_test);
+        }
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +77,6 @@ public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.Pr
                 }
             }
         });
-
     }
 
     @Override
@@ -83,14 +89,14 @@ public class AdaptadorProducto extends RecyclerView.Adapter<AdaptadorProducto.Pr
         ImageView productoImagen;
         TextView productoNombre;
         TextView productoPrecio;
-        TextView productoTalla; // Nuevo TextView para la talla
+        TextView productoTalla;
 
         public ProductoViewHolder(@NonNull View itemView) {
             super(itemView);
             productoImagen = itemView.findViewById(R.id.productoImagen);
             productoNombre = itemView.findViewById(R.id.productoNombre);
             productoPrecio = itemView.findViewById(R.id.productoPrecio);
-            productoTalla = itemView.findViewById(R.id.productoTalla); // Vincular el nuevo TextView
+            productoTalla = itemView.findViewById(R.id.productoTalla);
         }
     }
 }

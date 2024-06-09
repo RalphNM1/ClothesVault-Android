@@ -1,6 +1,6 @@
-package com.iesfernandowirtz.clothesvault.Modelo;
+package com.iesfernandowirtz.clothesvault.modelo;
 
-public class Producto {
+public class modeloProducto {
 
     private Long id;
     private String nombre;
@@ -8,15 +8,10 @@ public class Producto {
     private Double precio;
     private Integer stock;
 
-    private String marca;
     private String talla;
-    private String imagen_url; // Cambiado de byte[] a String
+    private String imagen; // Cambiado de byte[] a String
     private Categoria categoria; // Nueva propiedad
-    private Proveedor proveedor; // Nueva propiedad
-
-
-
-
+    private modeloProveedor proveedor; // Nueva propiedad
 
     // Getters y setters para todos los atributos
     public Long getId() {
@@ -60,14 +55,6 @@ public class Producto {
     }
 
 
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
     public String getTalla() {
         return talla;
     }
@@ -76,12 +63,12 @@ public class Producto {
         this.talla = talla;
     }
 
-    public String getImagenUrl() {
-        return imagen_url;
+    public String getImagen() {
+        return imagen;
     }
 
-    public void setImagenUrl(String imagen_url) {
-        this.imagen_url = imagen_url;
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public Categoria getCategoria() {
@@ -92,11 +79,11 @@ public class Producto {
         this.categoria = categoria;
     }
 
-    public Proveedor getProveedor() {
+    public modeloProveedor getProveedor() {
         return proveedor;
     }
 
-    public void setProveedor(Proveedor proveedor) {
+    public void setProveedor(modeloProveedor proveedor) {
         this.proveedor = proveedor;
     }
 }

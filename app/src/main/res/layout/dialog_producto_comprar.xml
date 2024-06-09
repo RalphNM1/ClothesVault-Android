@@ -3,7 +3,10 @@
     android:layout_height="wrap_content"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="#EDF2FA"
+
+    >
 
     <ImageView
         android:id="@+id/productoImagen"
@@ -91,7 +94,9 @@
             android:layout_marginRight="6dp"
             android:backgroundTint="#EB09184D"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            />
 
         <!-- EditText con ancho 0dp y peso 1 para rellenar el espacio sobrante -->
         <EditText
@@ -106,6 +111,7 @@
             android:inputType="number"
             android:textStyle="bold"
             android:textAlignment="center"
+            android:textColor="@color/black"
             android:background="@drawable/edittextesqredondtrans"
             />
 
@@ -116,7 +122,7 @@
             android:fontFamily="@font/allproyectfont"
             android:text="+"
             android:layout_marginLeft="6dp"
-
+            android:textColor="@color/white"
             android:backgroundTint="#EB09184D"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -129,12 +135,15 @@
         <Button
             android:id="@+id/btnComprar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:fontFamily="@font/allproyectfont"
             android:text="Comprar"
             android:backgroundTint="#EB09184D"
             android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="@color/white"
+
+            />
     </LinearLayout>
 
 </LinearLayout>

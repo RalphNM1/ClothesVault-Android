@@ -5,12 +5,21 @@ import android.app.Activity;
 
 import android.content.Context;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import  com.iesfernandowirtz.clothesvault.utils.ServicioProducto;
 public class Utilidades {
 
     public static void ocultarTeclado(Activity activity, View view) {
@@ -52,6 +61,46 @@ public class Utilidades {
             toastError.setDuration(Toast.LENGTH_SHORT);
             toastError.setView(layout);
             toastError.show();
+        }
+    }
+
+    public static void agregarProductoAlCarrito(ServicioProducto servicioProducto, Context context, Long idProducto, String idPedido, int cantidad) {
+        if (idPedido == null) {
+            mostrarToastError(context, "El ID del pedido no puede ser nulo");
+            return;
+        }
+
+        String idPedidoSinDecimales = idPedido.replaceAll("\\.\\d+", "");
+
+        try {
+            Long idPedidoLong = Long.valueOf(idPedidoSinDecimales);
+            Map<String, Long> body = new HashMap<>();
+            body.put("idPedido", idPedidoLong);
+            body.put("idProducto", idProducto);
+
+            Call<Void> call = servicioProducto.agregarProductoAlCarrito(body, cantidad);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        mostrarToastSuccess(context, "Producto agregado");
+                    } else {
+                        mostrarToastError(context, "Error al agregar el producto");
+                        try {
+                            Log.e("error", response.errorBody().string());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    mostrarToastError(context, "Error en la solicitud: " + t.getMessage());
+                }
+            });
+        } catch (NumberFormatException e) {
+            mostrarToastError(context, "Formato de ID del pedido no válido");
         }
     }
 

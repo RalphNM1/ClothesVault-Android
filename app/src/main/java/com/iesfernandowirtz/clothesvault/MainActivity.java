@@ -1,10 +1,17 @@
 // MainActivity.java
 package com.iesfernandowirtz.clothesvault;
 
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastSuccess;
+
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -17,36 +24,39 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
-import com.iesfernandowirtz.clothesvault.Modelo.Categoria;
-import com.iesfernandowirtz.clothesvault.Modelo.Producto;
-import com.iesfernandowirtz.clothesvault.Utils.Apis;
-import com.iesfernandowirtz.clothesvault.Utils.ServicioCategoria;
-import com.iesfernandowirtz.clothesvault.Utils.ServicioProducto;
+import com.iesfernandowirtz.clothesvault.modelo.Categoria;
+import com.iesfernandowirtz.clothesvault.modelo.modeloDetallePedido;
+import com.iesfernandowirtz.clothesvault.modelo.modeloProducto;
+import com.iesfernandowirtz.clothesvault.utils.Apis;
+import com.iesfernandowirtz.clothesvault.utils.ServicioCategoria;
+import com.iesfernandowirtz.clothesvault.utils.ServicioProducto;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import java.util.Map;
 
-public class MainActivity extends ActividadBase  implements AdaptadorProducto.OnProductoClickListener {
+public class MainActivity extends ActividadBase implements AdaptadorProducto.OnProductoClickListener {
 
-    TextView saludo;
-    ServicioProducto servicioProducto;
-    ServicioCategoria servicioCategoria;
+    private TextView saludo;
+    private ServicioProducto servicioProducto;
+    ;
+    private ServicioCategoria servicioCategoria;
     private RecyclerView recyclerView;
     private AdaptadorProducto adaptadorProducto;
-    private List<Producto> productoList;
+    private List<modeloProducto> productoList;
     private String categoriaSeleccionada;
     private String marcaSeleccionada;
     private List<String> categorias;
@@ -55,6 +65,11 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
     private int posicionCategoriaSeleccionada = -1; // Inicialmente sin selección
     private int posicionMarcaSeleccionada = -1; // Inicialmente sin selección
     private TextView tvRespuesta;
+    private ImageView iconFiltro;
+    private ImageView iconCarrito;
+    private ImageView btAtras;
+    private boolean dialogoMostrado = false;
+    private String idPedido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +80,13 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
         servicioProducto = Apis.getServicioProducto(this);
         servicioCategoria = Apis.getServicioCategoria(this);
         tvRespuesta = findViewById(R.id.tvRespuesta);
+        iconFiltro = findViewById(R.id.iconFiltro);
+        iconCarrito = findViewById(R.id.iconCarrito);
+        btAtras = findViewById(R.id.btAtras);
+        idPedido = getIntent().getStringExtra("idPedido");
+        System.out.println("ID del pedido recibido en MainActivity: " + idPedido);
+
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -96,50 +118,71 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
         obtenerCategoriasDesdeAPI();
         obtenerMarcasDesdeAPI();
 
-        ImageView iconFiltro = findViewById(R.id.iconFiltro);
+        btAtras.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         iconFiltro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mostrarDialogoFiltros();
             }
         });
+        iconCarrito.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CarritoActivity.class);
+                intent.putExtra("idPedido", idPedido); // Aquí se pasa el idPedido
+                startActivity(intent);
+            }
+        });
+
     }
 
 
-    // Método para mostrar el diálogo con la información del producto
-    private void mostrarDialogoProducto(Producto producto) {
+
+    @Override
+    public void onProductoClick(modeloProducto producto) {
+        // Verifica si el diálogo ya está mostrándose
+        if (!dialogoMostrado) {
+            // Si el diálogo no está mostrándose, muestra el diálogo y establece la variable a true
+            mostrarDialogoProductoCatalago(producto);
+            dialogoMostrado = true;
+        }
+    }
+
+
+    public void mostrarDialogoProductoCatalago(modeloProducto producto) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_producto_comprar);
 
-        // Obtener referencias a los elementos del diálogo
         ImageView imageView = dialog.findViewById(R.id.productoImagen);
         TextView nombreTextView = dialog.findViewById(R.id.productoNombre);
         TextView descripcionTextView = dialog.findViewById(R.id.productoDesc);
         TextView precioTextView = dialog.findViewById(R.id.productoPrecio);
         TextView tallaTextView = dialog.findViewById(R.id.productoTalla);
         EditText cantidad = dialog.findViewById(R.id.etCantidad);
+        Button btnmas = dialog.findViewById(R.id.btnmas);
+        Button btnmenos = dialog.findViewById(R.id.btnmenos);
+        Button btnComprar = dialog.findViewById(R.id.btnComprar);
 
-        Button btnmas = (Button) dialog.findViewById(R.id.btnmas);
-        Button btnmenos = (Button) dialog.findViewById(R.id.btnmenos);
-        Button btnComprar = (Button) dialog.findViewById(R.id.btnComprar);
-
-
-        // Configurar los elementos del diálogo con la información del producto
-        Glide.with(this)
-                .load(producto.getImagenUrl())
-                .placeholder(R.drawable.imagen_test)
-                .error(R.drawable.imagen_test)
-                .into(imageView);
+        String imagenBase64 = producto.getImagen();
+        if (imagenBase64 != null && !imagenBase64.isEmpty()) {
+            byte[] imagenBytes = Base64.decode(imagenBase64, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(imagenBytes, 0, imagenBytes.length);
+            Glide.with(this).load(bitmap).placeholder(R.drawable.imagen_test).error(R.drawable.imagen_test).into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.imagen_test);
+        }
 
         nombreTextView.setText(producto.getNombre());
         descripcionTextView.setText(producto.getDescripcion());
-
-        DecimalFormat df = new DecimalFormat("#.00"); // Formato para dos decimales
+        DecimalFormat df = new DecimalFormat("#.00");
         String precioFormateado = df.format(producto.getPrecio());
         precioTextView.setText("Precio: " + precioFormateado + " €");
         tallaTextView.setText("Talla: " + producto.getTalla());
-
-
 
         btnmas.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,6 +192,7 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
                 cantidad.setText(String.valueOf(cantidadActual));
             }
         });
+
         btnmenos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -160,21 +204,40 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
             }
         });
 
-        // Mostrar el diálogo
+        btnComprar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int cantidadActual = Integer.parseInt(cantidad.getText().toString());
+                if (cantidadActual > 0) {
+                    Utilidades.agregarProductoAlCarrito(servicioProducto,getApplicationContext(),producto.getId(), idPedido, cantidadActual);
+                    Carrito.getInstance().agregarProducto(producto, cantidadActual);
+
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                dialogoMostrado = false;
+            }
+        });
         dialog.show();
     }
-    @Override
-    public void onProductoClick(Producto producto) {
-        mostrarDialogoProducto(producto);
-    }
+
+
+
+
 
 
     private void obtenerProductosDesdeAPI() {
-        Call<List<Producto>> call = servicioProducto.getProducto();
+        Call<List<modeloProducto>> call = servicioProducto.getProducto();
 
-        call.enqueue(new Callback<List<Producto>>() {
+        call.enqueue(new Callback<List<modeloProducto>>() {
             @Override
-            public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
+            public void onResponse(Call<List<modeloProducto>> call, Response<List<modeloProducto>> response) {
+
+
                 if (response.isSuccessful() && response.body() != null) {
                     productoList.clear();
                     productoList.addAll(response.body());
@@ -185,27 +248,27 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
             }
 
             @Override
-            public void onFailure(Call<List<Producto>> call, Throwable t) {
+            public void onFailure(Call<List<modeloProducto>> call, Throwable t) {
                 Log.e("Error", t.getMessage());
             }
         });
     }
 
-    private void obtenerProductosDesdeAPI(Long categoriaId, String marca) {
-        Call<List<Producto>> call;
-        if (marca != null && marca.equals("Todas")) {
+    private void obtenerProductosDesdeAPI(Long categoriaId, String nombreProveedor) {
+        Call<List<modeloProducto>> call;
+        if (nombreProveedor != null && nombreProveedor.equals("Todas")) {
             if (categoriaId != null) {
                 call = servicioProducto.getProductosPorCategoria(categoriaId);
             } else {
                 call = servicioProducto.getProducto();
             }
         } else {
-            call = servicioProducto.getProductosPorCategoria(categoriaId, marca);
+            call = servicioProducto.getProductosPorCategoria(categoriaId, nombreProveedor);
         }
 
-        call.enqueue(new Callback<List<Producto>>() {
+        call.enqueue(new Callback<List<modeloProducto>>() {
             @Override
-            public void onResponse(Call<List<Producto>> call, Response<List<Producto>> response) {
+            public void onResponse(Call<List<modeloProducto>> call, Response<List<modeloProducto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     productoList.clear();
                     productoList.addAll(response.body());
@@ -216,8 +279,10 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
             }
 
             @Override
-            public void onFailure(Call<List<Producto>> call, Throwable t) {
+            public void onFailure(Call<List<modeloProducto>> call, Throwable t) {
                 Log.e("Error", "Error en la solicitud HTTP: " + t.getMessage());
+                mostrarToastError(getApplicationContext(), "No se ha podido establecer la conexión \n con la base de datos");
+
             }
         });
     }
@@ -316,7 +381,7 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
                 posicionMarcaSeleccionada = spinnerMarcas.getSelectedItemPosition();
 
                 if (categoriaSeleccionada.equals("Todas") && marcaSeleccionada.equals("Todas")) {
-                    obtenerProductosDesdeAPI();
+                    obtenerProductosDesdeAPI(null, null); // Cambio aquí
                 } else if (!categoriaSeleccionada.equals("Todas")) {
                     Long categoriaId = null;
                     for (Categoria categoria : categoriasList) {
@@ -325,9 +390,9 @@ public class MainActivity extends ActividadBase  implements AdaptadorProducto.On
                             break;
                         }
                     }
-                    obtenerProductosDesdeAPI(categoriaId, marcaSeleccionada);
+                    obtenerProductosDesdeAPI(categoriaId, marcaSeleccionada); // Cambio aquí
                 } else {
-                    obtenerProductosDesdeAPI(null, marcaSeleccionada);
+                    obtenerProductosDesdeAPI(null, marcaSeleccionada); // Cambio aquí
                 }
 
                 dialog.dismiss();

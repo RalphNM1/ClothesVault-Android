@@ -1,4 +1,4 @@
-package com.iesfernandowirtz.clothesvault.Modelo;
+package com.iesfernandowirtz.clothesvault.modelo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ public class Categoria {
     private Long id;
     private String nombre;
 
-    private List<Producto> productos = new ArrayList<>();
+    private List<modeloProducto> productos = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -26,11 +26,11 @@ public class Categoria {
         this.nombre = nombre;
     }
 
-    public List<Producto> getProductos() {
+    public List<modeloProducto> getProductos() {
         return productos;
     }
 
-    public void setProductos(List<Producto> productos) {
+    public void setProductos(List<modeloProducto> productos) {
         this.productos = productos;
     }
 }

@@ -1,6 +1,6 @@
-package com.iesfernandowirtz.clothesvault.Modelo;
+package com.iesfernandowirtz.clothesvault.modelo;
 
-public class Proveedor {
+public class modeloProveedor {
 
     private Long id;
     private String nombre;

@@ -17,7 +17,7 @@ import android.widget.Spinner;
 
 import androidx.core.content.ContextCompat;
 
-import com.iesfernandowirtz.clothesvault.Utils.Apis;
+import com.iesfernandowirtz.clothesvault.utils.Apis;
 
 
 public class Opciones extends ActividadBase {
@@ -81,9 +81,13 @@ public class Opciones extends ActividadBase {
             }
         });
 
-        btAtras.setOnClickListener(v -> {
-            Intent intent = new Intent(Opciones.this, Login.class);
-            startActivity(intent);
+
+
+        btAtras.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
         });
 
         btCambiarIp.setOnClickListener(v -> cambiarIp());

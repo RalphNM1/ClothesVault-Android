@@ -44,5 +44,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+// https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
+// https://mvnrepository.com/artifact/com.squareup.okhttp3/logging-interceptor
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
 }

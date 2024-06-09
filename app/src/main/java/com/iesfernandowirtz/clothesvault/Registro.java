@@ -3,7 +3,6 @@ package com.iesfernandowirtz.clothesvault;
 import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
 import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastSuccess;
 
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,9 +18,9 @@ import android.widget.ImageView;
 
 import androidx.core.content.ContextCompat;
 
-import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
-import com.iesfernandowirtz.clothesvault.Utils.Apis;
-import com.iesfernandowirtz.clothesvault.Utils.ServicioUsuario;
+import com.iesfernandowirtz.clothesvault.modelo.modeloUsuario;
+import com.iesfernandowirtz.clothesvault.utils.Apis;
+import com.iesfernandowirtz.clothesvault.utils.ServicioUsuario;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -69,11 +68,11 @@ public class Registro extends ActividadBase {
             }
         });
 
+
         btAtras.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Registro.this, Login.class);
-                startActivity(intent);
+                finish();
             }
         });
 
@@ -102,7 +101,7 @@ public class Registro extends ActividadBase {
                     if (comprobarCampos()) {
 
 
-                        Usuario u = new Usuario();
+                        modeloUsuario u = new modeloUsuario();
                         u.setNombre(txtNombre.getText().toString());
                         u.setApellido1(txtPrimerApellido.getText().toString());
                         u.setApellido2(txtSegundoApellido.getText().toString());
@@ -187,18 +186,18 @@ public class Registro extends ActividadBase {
     }
 
 
-    private void verificarUsuarioExistente(Usuario u) {
+    private void verificarUsuarioExistente(modeloUsuario u) {
         servicioUsuario = Apis.getServicioUsuario(this);
 
         // Construir la URL completa con el correo electrónico proporcionado
         String email = u.getEmail();
-        Call<List<Usuario>> call = servicioUsuario.getUsuarioXEmail(email);
+        Call<List<modeloUsuario>> call = servicioUsuario.getUsuarioXEmail(email);
 
 
-        call.enqueue(new Callback<List<Usuario>>() {
+        call.enqueue(new Callback<List<modeloUsuario>>() {
 
             @Override
-            public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
+            public void onResponse(Call<List<modeloUsuario>> call, Response<List<modeloUsuario>> response) {
 
                 if (response.body().isEmpty()) {
                     mostrarToastSuccess(getApplicationContext(), "Creando Usuario...");
@@ -211,7 +210,7 @@ public class Registro extends ActividadBase {
             }
 
             @Override
-            public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
+            public void onFailure(Call<List<modeloUsuario>> call, Throwable throwable) {
 
             }
         });
@@ -260,13 +259,13 @@ public class Registro extends ActividadBase {
     }
 
 
-    public void addUsuario(Usuario u) {
+    public void addUsuario(modeloUsuario u) {
         servicioUsuario = Apis.getServicioUsuario(this);
-        Call<Usuario> call = servicioUsuario.addUsuario(u);
+        Call<modeloUsuario> call = servicioUsuario.addUsuario(u);
 
-        call.enqueue(new Callback<Usuario>() {
+        call.enqueue(new Callback<modeloUsuario>() {
             @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+            public void onResponse(Call<modeloUsuario> call, Response<modeloUsuario> response) {
                 if (response != null) {
                     mostrarToastSuccess(getApplicationContext(), "Se agrego con éxito");
 
@@ -274,7 +273,7 @@ public class Registro extends ActividadBase {
             }
 
             @Override
-            public void onFailure(Call<Usuario> call, Throwable throwable) {
+            public void onFailure(Call<modeloUsuario> call, Throwable throwable) {
                 Log.e("Error: ", throwable.getMessage());
             }
         });

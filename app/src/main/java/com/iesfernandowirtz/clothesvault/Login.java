@@ -2,42 +2,34 @@ package com.iesfernandowirtz.clothesvault;
 
 import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 
-import com.iesfernandowirtz.clothesvault.Modelo.Usuario;
-import com.iesfernandowirtz.clothesvault.Utils.Apis;
-import com.iesfernandowirtz.clothesvault.Utils.ServicioUsuario;
+import com.iesfernandowirtz.clothesvault.modelo.modeloUsuario;
+import com.iesfernandowirtz.clothesvault.modelo.modeloDetallePedido;
+import com.iesfernandowirtz.clothesvault.utils.Apis;
+import com.iesfernandowirtz.clothesvault.utils.ServicioUsuario;
 
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -49,6 +41,7 @@ public class Login extends ActividadBase {
     EditText txtEmail;
     EditText txtContrasenha;
     CheckBox checkboxRecordarEmail;
+    Button btInciarSesion;
 
     public String nombreUsuario;
     CargandoAlert cargandoAlert = new CargandoAlert(this);
@@ -59,7 +52,7 @@ public class Login extends ActividadBase {
         Apis.setDireccionIP(this);
         setContentView(R.layout.activity_login);
 
-        Button btInciarSesion = findViewById(R.id.btInciarSesion);
+        btInciarSesion = findViewById(R.id.btInciarSesion);
         Button btRegistrarse = findViewById(R.id.btRegistrarse);
         txtEmail = findViewById(R.id.loginEtEmail);
         txtContrasenha = findViewById(R.id.loginEtContrasenha);
@@ -98,6 +91,8 @@ public class Login extends ActividadBase {
         btInciarSesion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Deshabilitar el botón para evitar múltiples clics
+                btInciarSesion.setEnabled(false);
                 login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
                 Utilidades.ocultarTeclado(Login.this, v);
             }
@@ -109,6 +104,9 @@ public class Login extends ActividadBase {
                 Intent intent = new Intent(Login.this, Registro.class);
                 txtContrasenha.getText().clear();
 
+                if(!checkboxRecordarEmail.isChecked()){
+                    txtEmail.setText("");
+                }
                 // Iniciar la actividad de Registro
                 startActivity(intent);
             }
@@ -123,55 +121,100 @@ public class Login extends ActividadBase {
     private void login(String email, String contrasenha) {
         servicioUsuario = Apis.getServicioUsuario(this);
 
-        // Construir la URL completa con el correo electrónico proporcionada
-        Call<List<Usuario>> call = servicioUsuario.getUsuarioXEmail(email);
+        // Primero, verificar si el correo electrónico existe
+        Call<List<modeloUsuario>> call = servicioUsuario.getUsuarioXEmail(email);
 
-        call.enqueue(new Callback<List<Usuario>>() {
+        call.enqueue(new Callback<List<modeloUsuario>>() {
             @Override
-            public void onResponse(Call<List<Usuario>> call, Response<List<Usuario>> response) {
+            public void onResponse(Call<List<modeloUsuario>> call, Response<List<modeloUsuario>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Usuario> usuarios = response.body();
+                    List<modeloUsuario> usuarios = response.body();
                     if (!usuarios.isEmpty()) {
-                        Usuario usuario = usuarios.get(0);
+                        modeloUsuario usuario = usuarios.get(0);
                         nombreUsuario = usuario.getNombre();
                         String contrasenhaAlmacenada = usuario.getContrasenha();
                         if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
 
-                            if (!checkboxRecordarEmail.isChecked()) {
-                                limpiarCampos();
-                            } else {
-                                txtContrasenha.getText().clear();
-                            }
-
-                            cargandoAlert.startAlertDialog();
-
-                            // Usar un Handler para retrasar la ejecución del Intent
-                            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                                cargandoAlert.closeAlertDialog();
-                                Intent intent = new Intent(Login.this, MainActivity.class);
-                                intent.putExtra("nombreUsuario", nombreUsuario);
-                                startActivity(intent);
-                            }, 2000);
+                            // Si la contraseña es correcta, proceder con la lógica de iniciar sesión
+                            iniciarSesion(usuario);
 
                         } else {
                             mostrarToastError(getApplicationContext(), "Contraseña incorrecta");
+                            // Rehabilitar el botón si hay un error
+                            btInciarSesion.setEnabled(true);
                         }
                     } else {
-
-                        mostrarToastError(getApplicationContext(),"Usuario incorrecto");
-
+                        mostrarToastError(getApplicationContext(), "Usuario incorrecto");
+                        // Rehabilitar el botón si hay un error
+                        btInciarSesion.setEnabled(true);
                     }
                 } else {
-                    mostrarToastError(getApplicationContext(),"Email o contraseña incorrectos");
+                    mostrarToastError(getApplicationContext(), "Email o contraseña incorrectos");
+                    // Rehabilitar el botón si hay un error
+                    btInciarSesion.setEnabled(true);
                 }
             }
 
             @Override
-            public void onFailure(Call<List<Usuario>> call, Throwable throwable) {
+            public void onFailure(Call<List<modeloUsuario>> call, Throwable throwable) {
                 Log.e("Error", throwable.toString());
-                mostrarToastError(getApplicationContext(),"Error de red");
+                mostrarToastError(getApplicationContext(), "Error de red");
+                // Rehabilitar el botón si hay un error
+                btInciarSesion.setEnabled(true);
             }
         });
+    }
+
+    private void iniciarSesion(modeloUsuario usuario) {
+        servicioUsuario = Apis.getServicioUsuario(this);
+        Call<Map<String, Object>> call = servicioUsuario.iniciarSesion(usuario);
+
+        call.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<String, Object> responseBody = response.body();
+                    String idPedido = String.valueOf(responseBody.get("idPedido"));
+                    List<modeloDetallePedido> detallesPedidos = (List<modeloDetallePedido>) responseBody.get("detallesPedido");
+
+                    System.out.println("ID del pedido recibido en la app: " + idPedido);
+
+                    Intent intent = new Intent(Login.this, MainActivity.class);
+                    intent.putExtra("nombreUsuario", nombreUsuario);
+                    intent.putExtra("idPedido", idPedido);
+
+                    if (!checkboxRecordarEmail.isChecked()) {
+                        limpiarCampos();
+                    } else {
+                        txtContrasenha.getText().clear();
+                    }
+
+                    cargandoAlert.startAlertDialog();
+                    cargarMainActivity(intent);
+                } else {
+                    mostrarToastError(getApplicationContext(), "Error al iniciar sesión");
+                    // Rehabilitar el botón si hay un error
+                    btInciarSesion.setEnabled(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable throwable) {
+                Log.e("Error", throwable.toString());
+                mostrarToastError(getApplicationContext(), "Error de red");
+                // Rehabilitar el botón si hay un error
+                btInciarSesion.setEnabled(true);
+            }
+        });
+    }
+
+    public void cargarMainActivity(Intent intent) {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            cargandoAlert.closeAlertDialog();
+            startActivity(intent);
+            // Rehabilitar el botón después de la transición
+            btInciarSesion.setEnabled(true);
+        }, 2000);
     }
 
     private boolean verificarContrasenha(String contrasenhaIntroducida, String contrasenhaAlmacenada) {
@@ -201,18 +244,34 @@ public class Login extends ActividadBase {
                     guardarEmail(editText.getContext(), email);
                 } else {
                     checkBox.setChecked(false); // Desmarcar el checkbox si el email no es válido
-                    mostrarToastError(getApplicationContext(),"Por favor, introduce un email válido");
-
+                    mostrarToastError(getApplicationContext(), "Por favor, introduce un email válido");
                 }
             } else {
-                guardarEmail(editText.getContext(), "");
+                guardarEmail(editText.getContext(), ""); // Limpiar el correo guardado si se desmarca la casilla
             }
         });
 
+        // Agregar un TextWatcher para detectar cambios en el texto del EditText
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Verificar si el CheckBox está marcado y el nuevo texto del EditText es un correo electrónico válido
+                if (checkboxRecordarEmail.isChecked() && Utilidades.validarFormatoCorreo(s.toString())) {
+                    guardarEmail(editText.getContext(), s.toString());
+                }
+            }
+        });
+        // Si hay un correo guardado, establecerlo en el EditText y marcar la casilla
         String emailGuardado = obtenerEmail(editText.getContext());
         editText.setText(emailGuardado);
         checkBox.setChecked(!emailGuardado.isEmpty());
     }
 }
-
-

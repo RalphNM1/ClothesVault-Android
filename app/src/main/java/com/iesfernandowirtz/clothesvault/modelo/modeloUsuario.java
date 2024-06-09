@@ -1,9 +1,18 @@
-package com.iesfernandowirtz.clothesvault.Modelo;
+package com.iesfernandowirtz.clothesvault.modelo;
 
-public class Usuario {
+import java.util.List;
+
+public class modeloUsuario {
     private Long id;
     private String contrasenha;
     private String nombre;
+    private String apellido1;
+    private String apellido2;
+    private String email;
+    private String direccion;
+    private Integer cp;
+
+    private List<modeloPedido> pedidos;
 
     public Long getId() {
         return id;
@@ -69,10 +78,15 @@ public class Usuario {
         this.cp = cp;
     }
 
-    private String apellido1;
-    private String apellido2;
-    private String email;
-    private String direccion;
-    private Integer cp;
+    public List<modeloPedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(List<modeloPedido> pedidos) {
+        this.pedidos = pedidos;
+    }
+
+
+
 }
 

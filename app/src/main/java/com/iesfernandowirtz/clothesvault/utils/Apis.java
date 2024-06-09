@@ -1,11 +1,11 @@
-package com.iesfernandowirtz.clothesvault.Utils;
+package com.iesfernandowirtz.clothesvault.utils;
 
 import android.content.Context;
 
 import com.iesfernandowirtz.clothesvault.DatabaseOperaciones;
 
 public class Apis {
-    private static String URL_001;
+    public static String URL_001;
 
     public static void setDireccionIP(Context context) {
         DatabaseOperaciones dbOps = new DatabaseOperaciones(context);
@@ -38,5 +38,19 @@ public class Apis {
             setDireccionIP(context);
         }
         return Cliente.getCliente(URL_001).create(ServicioCategoria.class);
+    }
+
+    public static ServicioPedido getServicioPedido(Context context) {
+        if (URL_001 == null) {
+            setDireccionIP(context);
+        }
+        return Cliente.getCliente(URL_001).create(ServicioPedido.class);
+    }
+
+    public static ServicioDetallePedido getServicioDetallePedido(Context context) {
+        if (URL_001 == null) {
+            setDireccionIP(context);
+        }
+        return Cliente.getCliente(URL_001).create(ServicioDetallePedido.class);
     }
 }
