@@ -19,6 +19,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adaptador para el RecyclerView que muestra los productos en el carrito de compras.
+ */
 public class AdaptadorCarrito extends RecyclerView.Adapter<AdaptadorCarrito.ViewHolder> {
 
     private List<modeloProducto> productos;
@@ -26,11 +29,20 @@ public class AdaptadorCarrito extends RecyclerView.Adapter<AdaptadorCarrito.View
     private OnItemClickListener listener;
     private List<modeloDetallePedido> detallesPedido = new ArrayList<>();
 
+    /**
+     * Constructor del adaptador.
+     * @param productos Lista de productos en el carrito.
+     * @param cantidades Lista de cantidades correspondientes a los productos en el carrito.
+     */
     public AdaptadorCarrito(List<modeloProducto> productos, List<Integer> cantidades) {
         this.productos = productos;
         this.cantidades = cantidades;
     }
 
+    /**
+     * Actualiza los detalles del pedido.
+     * @param detallesPedido Lista de detalles del pedido.
+     */
     public void actualizarDetallesPedido(List<modeloDetallePedido> detallesPedido) {
         this.detallesPedido.clear();
         this.detallesPedido.addAll(detallesPedido);
@@ -54,31 +66,38 @@ public class AdaptadorCarrito extends RecyclerView.Adapter<AdaptadorCarrito.View
         modeloProducto producto = productos.get(position);
         int cantidad = cantidades.get(position);
 
+        // Asigna el nombre del producto al TextView correspondiente.
         holder.nombreTextView.setText(producto.getNombre());
+        // Asigna la cantidad del producto al TextView correspondiente.
         holder.cantidadTextView.setText("Cantidad: " + cantidad);
 
+        // Calcula el precio total del producto.
         DecimalFormat df = new DecimalFormat("#.00");
         double precioTotal = producto.getPrecio() * cantidad;
+        // Asigna el precio total del producto al TextView correspondiente.
         holder.precioTextView.setText("Precio: " + df.format(precioTotal) + " €");
 
+        // Establece un listener para el item de la vista.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (listener != null) {
                     int adapterPosition = holder.getAdapterPosition();
                     if (adapterPosition != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(adapterPosition, cantidades.get(adapterPosition)); // Pasar la cantidad actual al diálogo
+                        listener.onItemClick(adapterPosition, cantidades.get(adapterPosition));
                     }
                 }
             }
         });
-        // Cargar la imagen del producto
+
+        // Carga la imagen del producto utilizando Glide.
         String imagenBase64 = producto.getImagen();
         if (imagenBase64 != null && !imagenBase64.isEmpty()) {
             byte[] imagenBytes = Base64.decode(imagenBase64, Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(imagenBytes, 0, imagenBytes.length);
             Glide.with(holder.itemView.getContext()).load(bitmap).into(holder.imageView);
         } else {
+            // Si no hay imagen, muestra una imagen de prueba.
             holder.imageView.setImageResource(R.drawable.imagen_test);
         }
     }
@@ -88,6 +107,9 @@ public class AdaptadorCarrito extends RecyclerView.Adapter<AdaptadorCarrito.View
         return productos.size();
     }
 
+    /**
+     * Clase ViewHolder para mantener las vistas de cada elemento de la lista.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView nombreTextView;
         TextView cantidadTextView;
@@ -96,6 +118,7 @@ public class AdaptadorCarrito extends RecyclerView.Adapter<AdaptadorCarrito.View
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Inicializa las vistas.
             nombreTextView = itemView.findViewById(R.id.productoNombre);
             cantidadTextView = itemView.findViewById(R.id.productoCantidad);
             precioTextView = itemView.findViewById(R.id.productoPrecio);
@@ -103,10 +126,17 @@ public class AdaptadorCarrito extends RecyclerView.Adapter<AdaptadorCarrito.View
         }
     }
 
+    /**
+     * Interfaz para manejar los eventos de clic en los elementos de la lista.
+     */
     public interface OnItemClickListener {
         void onItemClick(int position, int cantidad);
     }
 
+    /**
+     * Establece el listener para los clics en los elementos de la lista.
+     * @param listener El listener que manejará los eventos de clic.
+     */
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }

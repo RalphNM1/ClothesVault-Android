@@ -1,58 +1,58 @@
 // MainActivity.java
 package com.iesfernandowirtz.clothesvault;
 
+// Importaciones de librerías y utilidades
 import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
-import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastSuccess;
-
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 import androidx.activity.EdgeToEdge;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+// Importaciones de modelos y servicios
 import com.bumptech.glide.Glide;
 import com.iesfernandowirtz.clothesvault.modelo.Categoria;
-import com.iesfernandowirtz.clothesvault.modelo.modeloDetallePedido;
 import com.iesfernandowirtz.clothesvault.modelo.modeloProducto;
+import com.iesfernandowirtz.clothesvault.modelo.modeloUsuario;
 import com.iesfernandowirtz.clothesvault.utils.Apis;
 import com.iesfernandowirtz.clothesvault.utils.ServicioCategoria;
 import com.iesfernandowirtz.clothesvault.utils.ServicioProducto;
+import com.iesfernandowirtz.clothesvault.utils.ServicioUsuario;
 
-import java.io.IOException;
+// Importaciones adicionales
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 import java.util.Map;
 
+// Declaración de la clase MainActivity
 public class MainActivity extends ActividadBase implements AdaptadorProducto.OnProductoClickListener {
 
+    // Declaración de variables de la actividad
     private TextView saludo;
     private ServicioProducto servicioProducto;
-    ;
+    private ServicioUsuario servicioUsuario;
     private ServicioCategoria servicioCategoria;
     private RecyclerView recyclerView;
     private AdaptadorProducto adaptadorProducto;
@@ -70,12 +70,18 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
     private ImageView btAtras;
     private boolean dialogoMostrado = false;
     private String idPedido;
+    private String email;
+    private Intent intentCarrito;
+    private static final int CODIGO_SOLICITUD_CARRO = 1;
 
+    // Método onCreate, se ejecuta al iniciar la actividad
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         EdgeToEdge.enable(this);
+
+        // Inicialización de vistas y servicios
         saludo = findViewById(R.id.tvSaludo);
         servicioProducto = Apis.getServicioProducto(this);
         servicioCategoria = Apis.getServicioCategoria(this);
@@ -83,16 +89,17 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         iconFiltro = findViewById(R.id.iconFiltro);
         iconCarrito = findViewById(R.id.iconCarrito);
         btAtras = findViewById(R.id.btAtras);
-        idPedido = getIntent().getStringExtra("idPedido");
-        System.out.println("ID del pedido recibido en MainActivity: " + idPedido);
+        servicioUsuario = Apis.getServicioUsuario(this);
 
+        intentCarrito = new Intent(MainActivity.this, CarritoActivity.class);
 
+        // Recuperación del email desde el intent
+        email = getIntent().getStringExtra("email");
+        System.out.println("email recibido en MainActivity: " + email);
+        usuarioXEmail(email);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorFondo));
-        }
+        // Configuración del color de la barra de estado
+        Utilidades.cambiarColorBarraDeEstado(getApplicationContext(),getWindow(),R.color.colorFondo);
 
         // Obtener el nombre de usuario del Intent
         Intent intent = getIntent();
@@ -118,6 +125,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         obtenerCategoriasDesdeAPI();
         obtenerMarcasDesdeAPI();
 
+        // Configuración de listeners para los botones
         btAtras.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,16 +141,81 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         iconCarrito.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CarritoActivity.class);
-                intent.putExtra("idPedido", idPedido); // Aquí se pasa el idPedido
-                startActivity(intent);
+                startActivityForResult(intentCarrito, CODIGO_SOLICITUD_CARRO);
             }
         });
 
     }
 
+    // Método para manejar el resultado de la actividad
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CODIGO_SOLICITUD_CARRO && resultCode == Activity.RESULT_OK) {
+            usuarioXEmail(email);
+        }
+    }
 
+    // Método para obtener el usuario por email desde la API
+    private void usuarioXEmail(String email) {
+        servicioUsuario = Apis.getServicioUsuario(this);
 
+        Call<List<modeloUsuario>> call = servicioUsuario.getUsuarioXEmail(email);
+
+        call.enqueue(new Callback<List<modeloUsuario>>() {
+            @Override
+            public void onResponse(Call<List<modeloUsuario>> call, Response<List<modeloUsuario>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<modeloUsuario> usuarios = response.body();
+                    if (!usuarios.isEmpty()) {
+                        modeloUsuario usuario = usuarios.get(0);
+                        buscarCrearPedido(usuario);
+                    } else {
+                        mostrarToastError(getApplicationContext(), "Usuario incorrecto");
+                    }
+                } else {
+                    mostrarToastError(getApplicationContext(), "Email incorrecto");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<modeloUsuario>> call, Throwable throwable) {
+                Log.e("Error", throwable.toString());
+                mostrarToastError(getApplicationContext(), "Error de red");
+            }
+        });
+    }
+
+    // Método para buscar o crear un pedido para el usuario
+    private void buscarCrearPedido(modeloUsuario usuario) {
+        servicioUsuario = Apis.getServicioUsuario(this);
+        Call<Map<String, Object>> call = servicioUsuario.crearPedidos(usuario);
+
+        call.enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<String, Object> responseBody = response.body();
+                    idPedido = String.valueOf(responseBody.get("idPedido"));
+
+                    System.out.println("ID del pedido recibido en la app: " + idPedido);
+
+                    intentCarrito.putExtra("idPedido", idPedido); // Aquí se pasa el idPedido
+                    intentCarrito.putExtra("email", email);
+                } else {
+                    mostrarToastError(getApplicationContext(), "Error al iniciar sesión");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable throwable) {
+                Log.e("Error", throwable.toString());
+                mostrarToastError(getApplicationContext(), "Error de red");
+            }
+        });
+    }
+
+    // Método para mostrar un diálogo con los detalles del producto seleccionado
     @Override
     public void onProductoClick(modeloProducto producto) {
         // Verifica si el diálogo ya está mostrándose
@@ -153,11 +226,12 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         }
     }
 
-
+    // Método para mostrar el diálogo de detalles del producto seleccionado
     public void mostrarDialogoProductoCatalago(modeloProducto producto) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_producto_comprar);
 
+        // Inicialización de vistas en el diálogo
         ImageView imageView = dialog.findViewById(R.id.productoImagen);
         TextView nombreTextView = dialog.findViewById(R.id.productoNombre);
         TextView descripcionTextView = dialog.findViewById(R.id.productoDesc);
@@ -168,6 +242,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         Button btnmenos = dialog.findViewById(R.id.btnmenos);
         Button btnComprar = dialog.findViewById(R.id.btnComprar);
 
+        // Configuración de los datos del producto en el diálogo
         String imagenBase64 = producto.getImagen();
         if (imagenBase64 != null && !imagenBase64.isEmpty()) {
             byte[] imagenBytes = Base64.decode(imagenBase64, Base64.DEFAULT);
@@ -184,6 +259,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         precioTextView.setText("Precio: " + precioFormateado + " €");
         tallaTextView.setText("Talla: " + producto.getTalla());
 
+        // Configuración de los listeners de los botones en el diálogo
         btnmas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,35 +285,32 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
             public void onClick(View v) {
                 int cantidadActual = Integer.parseInt(cantidad.getText().toString());
                 if (cantidadActual > 0) {
-                    Utilidades.agregarProductoAlCarrito(servicioProducto,getApplicationContext(),producto.getId(), idPedido, cantidadActual);
+                    Utilidades.agregarProductoAlCarrito(servicioProducto, getApplicationContext(), producto.getId(), idPedido, cantidadActual);
                     Carrito.getInstance().agregarProducto(producto, cantidadActual);
-
                 }
                 dialog.dismiss();
             }
         });
+
+        // Configuración del listener para cuando el diálogo se cierra
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 dialogoMostrado = false;
             }
         });
+
+        // Mostrar el diálogo
         dialog.show();
     }
 
-
-
-
-
-
+    // Método para obtener todos los productos desde la API
     private void obtenerProductosDesdeAPI() {
         Call<List<modeloProducto>> call = servicioProducto.getProducto();
 
         call.enqueue(new Callback<List<modeloProducto>>() {
             @Override
             public void onResponse(Call<List<modeloProducto>> call, Response<List<modeloProducto>> response) {
-
-
                 if (response.isSuccessful() && response.body() != null) {
                     productoList.clear();
                     productoList.addAll(response.body());
@@ -254,6 +327,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         });
     }
 
+    // Método para obtener productos desde la API con filtros de categoría y marca
     private void obtenerProductosDesdeAPI(Long categoriaId, String nombreProveedor) {
         Call<List<modeloProducto>> call;
         if (nombreProveedor != null && nombreProveedor.equals("Todas")) {
@@ -282,11 +356,11 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
             public void onFailure(Call<List<modeloProducto>> call, Throwable t) {
                 Log.e("Error", "Error en la solicitud HTTP: " + t.getMessage());
                 mostrarToastError(getApplicationContext(), "No se ha podido establecer la conexión \n con la base de datos");
-
             }
         });
     }
 
+    // Método para verificar si hay productos y mostrar la respuesta en la interfaz
     private void verificarYMostrarRespuesta() {
         if (productoList.isEmpty()) {
             tvRespuesta.setVisibility(View.VISIBLE);
@@ -296,6 +370,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         adaptadorProducto.notifyDataSetChanged();
     }
 
+    // Método para obtener las categorías desde la API
     private void obtenerCategoriasDesdeAPI() {
         Call<List<Categoria>> call = servicioCategoria.getCategorias();
 
@@ -322,6 +397,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         });
     }
 
+    // Método para obtener las marcas desde la API
     private void obtenerMarcasDesdeAPI() {
         Call<List<String>> call = servicioProducto.getMarcas();
 
@@ -345,6 +421,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
         });
     }
 
+    // Método para mostrar el diálogo de filtros
     private void mostrarDialogoFiltros() {
         final Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_filtros);
@@ -372,6 +449,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
             }
         }
 
+        // Configuración del botón de aplicar filtros
         btnAplicarFiltros.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -399,6 +477,7 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
             }
         });
 
+        // Configuración del botón de quitar filtros
         btnQuitarFiltros.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -411,6 +490,9 @@ public class MainActivity extends ActividadBase implements AdaptadorProducto.OnP
             }
         });
 
+        // Mostrar el diálogo
         dialog.show();
     }
 }
+
+

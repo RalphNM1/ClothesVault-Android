@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat;
 
 import com.iesfernandowirtz.clothesvault.utils.Apis;
 
-
+// Actividad que gestiona las opciones de la aplicación
 public class Opciones extends ActividadBase {
     Spinner spinnerIdiomas;
     public static final String[] idiomas = {"", "Español", "Gallego"};
@@ -37,20 +37,22 @@ public class Opciones extends ActividadBase {
         dbOps = new DatabaseOperaciones(this);
         Apis.setDireccionIP(this);
 
+        // Inicialización de elementos de la interfaz de usuario
         btAtras = findViewById(R.id.btAtras);
         etIntIP = findViewById(R.id.etIntIP);
         btCambiarIp = findViewById(R.id.btCambiarIp);
 
-        // Comprobar si hay una dirección IP guardada en la base de datos
+        // Comprobación de la existencia de una dirección IP guardada
         String ipActual = dbOps.obtenerDireccionIP();
         if (ipActual != null && !ipActual.isEmpty()) {
             etIntIP.setText(ipActual);
         } else {
-            // Si no hay ninguna dirección IP guardada, agregar la dirección IP por defecto a la base de datos
+            // Si no hay ninguna dirección IP guardada, agregar la dirección IP por defecto
             dbOps.guardarDireccionIP("192.168.1.133");
             etIntIP.setText("192.168.1.133");
         }
 
+        // Configuración del Spinner de idiomas
         spinnerIdiomas = findViewById(R.id.spinnerIdiomas);
         SpinnerIdiomas adapter = new SpinnerIdiomas(this, R.layout.idioma_row, idiomas, imagenes);
         spinnerIdiomas.setAdapter(adapter);
@@ -61,12 +63,14 @@ public class Opciones extends ActividadBase {
                 String idiomaSeleccionado = parent.getItemAtPosition(position).toString();
                 String codIdioma = "";
 
+                // Asignación del código de idioma según la selección del usuario
                 if (idiomaSeleccionado.equals("Español")) {
                     codIdioma = "es";
                 } else if (idiomaSeleccionado.equals("Gallego")) {
                     codIdioma = "gl";
                 }
 
+                // Guardar el idioma seleccionado en las preferencias compartidas y reiniciar la aplicación
                 if (!codIdioma.isEmpty()) {
                     getSharedPreferences("AppPreferences", MODE_PRIVATE)
                             .edit()
@@ -81,8 +85,7 @@ public class Opciones extends ActividadBase {
             }
         });
 
-
-
+        // Listener para el botón de retroceso
         btAtras.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,15 +93,15 @@ public class Opciones extends ActividadBase {
             }
         });
 
+        // Listener para el botón de cambiar IP
         btCambiarIp.setOnClickListener(v -> cambiarIp());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorFondo));
-        }
+        // Configuración del color de la barra de estado
+        Utilidades.cambiarColorBarraDeEstado(getApplicationContext(),getWindow(),R.color.colorFondo);
+
     }
 
+    // Método para cambiar la dirección IP
     public void cambiarIp() {
         String nuevaIP = etIntIP.getText().toString().trim();
         if (!nuevaIP.isEmpty()) {
@@ -116,6 +119,7 @@ public class Opciones extends ActividadBase {
         dbOps.cerrar();
     }
 
+    // Método para reiniciar la aplicación
     private void reiniciarApp() {
         Intent intent = getPackageManager().getLaunchIntentForPackage(getPackageName());
         if (intent != null) {

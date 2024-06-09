@@ -23,6 +23,6 @@ public interface ServicioUsuario {
         @POST("/usuarios/insertar")
         Call<modeloUsuario> addUsuario(@Body modeloUsuario usuario);
 
-        @POST("/usuarios/iniciarSesion")
-        Call<Map<String, Object>> iniciarSesion(@Body modeloUsuario usuario);
+        @POST("/usuarios/crearPedidos")
+        Call<Map<String, Object>> crearPedidos(@Body modeloUsuario usuario);
     }

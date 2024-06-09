@@ -29,7 +29,7 @@
         android:layout_marginBottom="24dp"
         android:fontFamily="@font/allproyectfont"
         android:text="Error"
-        android:textColor="@android:color/black"
+        android:textColor="@android:color/white"
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"

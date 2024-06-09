@@ -1,18 +1,16 @@
 package com.iesfernandowirtz.clothesvault;
 
 import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastSuccess;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -24,27 +22,28 @@ import android.widget.ImageView;
 import androidx.core.content.ContextCompat;
 
 import com.iesfernandowirtz.clothesvault.modelo.modeloUsuario;
-import com.iesfernandowirtz.clothesvault.modelo.modeloDetallePedido;
 import com.iesfernandowirtz.clothesvault.utils.Apis;
 import com.iesfernandowirtz.clothesvault.utils.ServicioUsuario;
 
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * La clase Login maneja la lógica de la pantalla de inicio de sesión.
+ */
 public class Login extends ActividadBase {
 
-    ServicioUsuario servicioUsuario;
-    EditText txtEmail;
-    EditText txtContrasenha;
-    CheckBox checkboxRecordarEmail;
-    Button btInciarSesion;
+    ServicioUsuario servicioUsuario; // Servicio para realizar llamadas a la API de usuarios
+    EditText txtEmail; // Campo de texto para el email
+    EditText txtContrasenha; // Campo de texto para la contraseña
+    CheckBox checkboxRecordarEmail; // CheckBox para recordar el email
+    Button btInciarSesion; // Botón para iniciar sesión
 
-    public String nombreUsuario;
-    CargandoAlert cargandoAlert = new CargandoAlert(this);
+    public String nombreUsuario; // Nombre del usuario autenticado
+    public String emailUsuario; // Email del usuario autenticado
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +51,7 @@ public class Login extends ActividadBase {
         Apis.setDireccionIP(this);
         setContentView(R.layout.activity_login);
 
+        // Inicializar los componentes de la interfaz
         btInciarSesion = findViewById(R.id.btInciarSesion);
         Button btRegistrarse = findViewById(R.id.btRegistrarse);
         txtEmail = findViewById(R.id.loginEtEmail);
@@ -59,71 +59,62 @@ public class Login extends ActividadBase {
         ImageView opciones = findViewById(R.id.loginOpciones);
         checkboxRecordarEmail = findViewById(R.id.checkboxRecordarEmail);
 
+        // Manejar la lógica del CheckBox
         manejarCheckBox(checkboxRecordarEmail, txtEmail);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.black));
-        }
+        // Cambiar el color de la barra de estado si la versión de Android es Lollipop o superior
+        Utilidades.cambiarColorBarraDeEstado(getApplicationContext(),getWindow(),R.color.black);
 
+        // Configurar la lógica para ocultar el teclado al tocar fuera de los campos de texto
         View container = findViewById(R.id.scrollViewLogin);
-        container.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // Oculta el teclado cuando se toca fuera de los campos de texto
-                Utilidades.ocultarTeclado(Login.this, v);
-                return false;
-            }
+        container.setOnTouchListener((v, event) -> {
+            Utilidades.ocultarTeclado(Login.this, v);
+            return false;
         });
 
-        opciones.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Login.this, Opciones.class);
-                txtContrasenha.getText().clear();
-
-                // Iniciar la actividad de Registro
-                startActivity(intent);
-            }
+        // Configurar el botón de opciones
+        opciones.setOnClickListener(v -> {
+            Intent intent = new Intent(Login.this, Opciones.class);
+            txtContrasenha.getText().clear();
+            startActivity(intent);
         });
 
-        btInciarSesion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Deshabilitar el botón para evitar múltiples clics
-                btInciarSesion.setEnabled(false);
-                login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
-                Utilidades.ocultarTeclado(Login.this, v);
-            }
+        // Configurar el botón de iniciar sesión
+        btInciarSesion.setOnClickListener(v -> {
+            btInciarSesion.setEnabled(false); // Deshabilitar el botón para evitar múltiples clics
+            login(txtEmail.getText().toString().toLowerCase(), txtContrasenha.getText().toString());
+            Utilidades.ocultarTeclado(Login.this, v);
         });
 
-        btRegistrarse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Login.this, Registro.class);
-                txtContrasenha.getText().clear();
-
-                if(!checkboxRecordarEmail.isChecked()){
-                    txtEmail.setText("");
-                }
-                // Iniciar la actividad de Registro
-                startActivity(intent);
+        // Configurar el botón de registrarse
+        btRegistrarse.setOnClickListener(v -> {
+            Intent intent = new Intent(Login.this, Registro.class);
+            txtContrasenha.getText().clear();
+            if (!checkboxRecordarEmail.isChecked()) {
+                txtEmail.setText("");
             }
+            startActivity(intent);
         });
     }
 
-    public void limpiarCampos() { // Limpiar todos los campos de la pantalla
+    /**
+     * Limpiar todos los campos de la pantalla de inicio de sesión.
+     */
+    public void limpiarCampos() {
         txtEmail.getText().clear();
         txtContrasenha.getText().clear();
     }
 
+    /**
+     * Iniciar sesión con el email y la contraseña proporcionados.
+     * @param email El email del usuario.
+     * @param contrasenha La contraseña del usuario.
+     */
     private void login(String email, String contrasenha) {
         servicioUsuario = Apis.getServicioUsuario(this);
 
-        // Primero, verificar si el correo electrónico existe
+        // Verificar si el correo electrónico existe
         Call<List<modeloUsuario>> call = servicioUsuario.getUsuarioXEmail(email);
-
         call.enqueue(new Callback<List<modeloUsuario>>() {
             @Override
             public void onResponse(Call<List<modeloUsuario>> call, Response<List<modeloUsuario>> response) {
@@ -132,26 +123,30 @@ public class Login extends ActividadBase {
                     if (!usuarios.isEmpty()) {
                         modeloUsuario usuario = usuarios.get(0);
                         nombreUsuario = usuario.getNombre();
+                        emailUsuario = usuario.getEmail();
                         String contrasenhaAlmacenada = usuario.getContrasenha();
                         if (verificarContrasenha(contrasenha, contrasenhaAlmacenada)) {
-
-                            // Si la contraseña es correcta, proceder con la lógica de iniciar sesión
-                            iniciarSesion(usuario);
-
+                            Intent intent = new Intent(Login.this, MainActivity.class);
+                            intent.putExtra("nombreUsuario", nombreUsuario);
+                            intent.putExtra("email", emailUsuario);
+                            if (!checkboxRecordarEmail.isChecked()) {
+                                limpiarCampos();
+                            } else {
+                                txtContrasenha.getText().clear();
+                            }
+                            mostrarToastSuccess(getApplicationContext(), "Iniciado Sesión...");
+                            cargarMainActivity(intent);
                         } else {
                             mostrarToastError(getApplicationContext(), "Contraseña incorrecta");
-                            // Rehabilitar el botón si hay un error
-                            btInciarSesion.setEnabled(true);
+                            btInciarSesion.setEnabled(true); // Rehabilitar el botón si hay un error
                         }
                     } else {
                         mostrarToastError(getApplicationContext(), "Usuario incorrecto");
-                        // Rehabilitar el botón si hay un error
-                        btInciarSesion.setEnabled(true);
+                        btInciarSesion.setEnabled(true); // Rehabilitar el botón si hay un error
                     }
                 } else {
                     mostrarToastError(getApplicationContext(), "Email o contraseña incorrectos");
-                    // Rehabilitar el botón si hay un error
-                    btInciarSesion.setEnabled(true);
+                    btInciarSesion.setEnabled(true); // Rehabilitar el botón si hay un error
                 }
             }
 
@@ -159,83 +154,60 @@ public class Login extends ActividadBase {
             public void onFailure(Call<List<modeloUsuario>> call, Throwable throwable) {
                 Log.e("Error", throwable.toString());
                 mostrarToastError(getApplicationContext(), "Error de red");
-                // Rehabilitar el botón si hay un error
-                btInciarSesion.setEnabled(true);
+                btInciarSesion.setEnabled(true); // Rehabilitar el botón si hay un error
             }
         });
     }
 
-    private void iniciarSesion(modeloUsuario usuario) {
-        servicioUsuario = Apis.getServicioUsuario(this);
-        Call<Map<String, Object>> call = servicioUsuario.iniciarSesion(usuario);
-
-        call.enqueue(new Callback<Map<String, Object>>() {
-            @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> responseBody = response.body();
-                    String idPedido = String.valueOf(responseBody.get("idPedido"));
-                    List<modeloDetallePedido> detallesPedidos = (List<modeloDetallePedido>) responseBody.get("detallesPedido");
-
-                    System.out.println("ID del pedido recibido en la app: " + idPedido);
-
-                    Intent intent = new Intent(Login.this, MainActivity.class);
-                    intent.putExtra("nombreUsuario", nombreUsuario);
-                    intent.putExtra("idPedido", idPedido);
-
-                    if (!checkboxRecordarEmail.isChecked()) {
-                        limpiarCampos();
-                    } else {
-                        txtContrasenha.getText().clear();
-                    }
-
-                    cargandoAlert.startAlertDialog();
-                    cargarMainActivity(intent);
-                } else {
-                    mostrarToastError(getApplicationContext(), "Error al iniciar sesión");
-                    // Rehabilitar el botón si hay un error
-                    btInciarSesion.setEnabled(true);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable throwable) {
-                Log.e("Error", throwable.toString());
-                mostrarToastError(getApplicationContext(), "Error de red");
-                // Rehabilitar el botón si hay un error
-                btInciarSesion.setEnabled(true);
-            }
-        });
-    }
-
+    /**
+     * Cargar la actividad principal después de iniciar sesión.
+     * @param intent El intent para iniciar la actividad principal.
+     */
     public void cargarMainActivity(Intent intent) {
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            cargandoAlert.closeAlertDialog();
-            startActivity(intent);
-            // Rehabilitar el botón después de la transición
-            btInciarSesion.setEnabled(true);
-        }, 2000);
+        startActivity(intent);
+        btInciarSesion.setEnabled(true); // Rehabilitar el botón después de la transición
     }
 
+    /**
+     * Verificar si la contraseña introducida coincide con la almacenada.
+     * @param contrasenhaIntroducida La contraseña introducida por el usuario.
+     * @param contrasenhaAlmacenada La contraseña almacenada en la base de datos.
+     * @return true si las contraseñas coinciden, false en caso contrario.
+     */
     private boolean verificarContrasenha(String contrasenhaIntroducida, String contrasenhaAlmacenada) {
         String contrasenhaCifrada = Registro.cifrarContrasenha(contrasenhaIntroducida);
         return contrasenhaCifrada != null && contrasenhaCifrada.equals(contrasenhaAlmacenada);
     }
 
-    private static final String NOM_PREFS = "prefs";
-    private static final String EMAIL_KEY = "email";
+    private static final String NOM_PREFS = "prefs"; // Nombre del archivo de preferencias
+    private static final String EMAIL_KEY = "email"; // Clave para el email en las preferencias
 
+    /**
+     * Guardar el email en las preferencias compartidas.
+     * @param context El contexto de la aplicación.
+     * @param email El email a guardar.
+     */
     public static void guardarEmail(Context context, String email) {
         SharedPreferences.Editor editor = context.getSharedPreferences(NOM_PREFS, Context.MODE_PRIVATE).edit();
         editor.putString(EMAIL_KEY, email);
         editor.apply();
     }
 
+    /**
+     * Obtener el email guardado en las preferencias compartidas.
+     * @param context El contexto de la aplicación.
+     * @return El email guardado.
+     */
     public static String obtenerEmail(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(NOM_PREFS, Context.MODE_PRIVATE);
         return prefs.getString(EMAIL_KEY, "");
     }
 
+    /**
+     * Manejar la lógica del CheckBox para recordar el email.
+     * @param checkBox El CheckBox para recordar el email.
+     * @param editText El campo de texto del email.
+     */
     public void manejarCheckBox(CheckBox checkBox, EditText editText) {
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -269,6 +241,7 @@ public class Login extends ActividadBase {
                 }
             }
         });
+
         // Si hay un correo guardado, establecerlo en el EditText y marcar la casilla
         String emailGuardado = obtenerEmail(editText.getContext());
         editText.setText(emailGuardado);

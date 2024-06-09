@@ -1,5 +1,8 @@
 package com.iesfernandowirtz.clothesvault;
 
+import static com.iesfernandowirtz.clothesvault.Utilidades.mostrarToastError;
+
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,10 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.iesfernandowirtz.clothesvault.modelo.modeloDetallePedido;
 import com.iesfernandowirtz.clothesvault.modelo.modeloProducto;
+import com.iesfernandowirtz.clothesvault.modelo.modeloUsuario;
 import com.iesfernandowirtz.clothesvault.utils.Apis;
 import com.iesfernandowirtz.clothesvault.utils.ServicioDetallePedido;
 import com.iesfernandowirtz.clothesvault.utils.ServicioPedido;
 import com.iesfernandowirtz.clothesvault.utils.ServicioProducto;
+import com.iesfernandowirtz.clothesvault.utils.ServicioUsuario;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -40,29 +45,34 @@ import retrofit2.Response;
 
 public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.OnItemClickListener {
 
-
+    // Declaración de variables de clase
     private RecyclerView recyclerView;
     private AdaptadorCarrito adaptadorCarrito;
     private static TextView tvTotal;
     private ServicioProducto servicioProducto;
     private ServicioPedido servicioPedido;
     private ServicioDetallePedido servicioDetallePedido;
+    private ServicioUsuario servicioUsuario;
 
     private static boolean dialogoMostrado = false;
 
     private ImageView btAtras;
-
     private Button btnRealizarPedido;
     private String idPedido;
 
+    // Método onCreate que se ejecuta al crear la actividad
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_carrito);
+
+        // Inicialización de servicios
         servicioProducto = Apis.getServicioProducto(this);
         servicioDetallePedido = Apis.getServicioDetallePedido(this);
         servicioPedido = Apis.getServicioPedido(this);
+        servicioUsuario = Apis.getServicioUsuario(this);
 
+        // Configuración del RecyclerView y sus componentes
         recyclerView = findViewById(R.id.recyclerViewCarrito);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -70,15 +80,18 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
         tvTotal = findViewById(R.id.tvTotal);
         btnRealizarPedido = findViewById(R.id.btnRealizarPedido);
 
-
         adaptadorCarrito = new AdaptadorCarrito(new ArrayList<>(), new ArrayList<>());
         recyclerView.setAdapter(adaptadorCarrito);
 
+        // Obtener el ID del pedido pasado desde la actividad anterior
         Intent intent = getIntent();
         idPedido = intent.getStringExtra("idPedido");
+        System.out.println("id Pedido: " + idPedido);
 
+        // Actualizar el total del carrito
         actualizarTotal();
 
+        // Configurar el listener para los elementos del carrito
         adaptadorCarrito.setOnItemClickListener(this);
 
         if (idPedido != null) {
@@ -87,15 +100,17 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
             actualizarTotal();
         } else {
             System.out.println("NO HAY PEDIDOS");
-
         }
         actualizarTotal();
 
+        // Cambiar el color de la barra de estado si la versión de Android lo permite
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorFondo));
         }
+
+        // Configurar el botón de retroceso
         btAtras.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,16 +118,37 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
             }
         });
 
+        // Configurar el botón de realizar pedido
         btnRealizarPedido.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Pasar
+                String idPedidoSinDecimales = idPedido.replaceAll("\\.\\d+", "");
+
+                servicioPedido.actualizarEstadoPedido(Long.valueOf(idPedidoSinDecimales), "Enviado").enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            vaciarCarrito();
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("pedidoCompletado", true);
+                            setResult(Activity.RESULT_OK, resultIntent);
+                            finish();
+                            Log.d("CarritoActivity", "Pedido realizado exitosamente");
+                        } else {
+                            Log.e("CarritoActivity", "Error al realizar el pedido: " + response);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Log.e("CarritoActivity", "Error en la solicitud HTTP: " + t.getMessage());
+                    }
+                });
             }
         });
-
     }
 
-
+    // Método para obtener los detalles del pedido desde la API
     private void obtenerDetallesPedidoDesdeAPI(String idPedido) {
         String idPedidoSinDecimales = idPedido.replaceAll("\\.\\d+", "");
 
@@ -153,7 +189,7 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
         });
     }
 
-
+    // Método para actualizar el total del carrito
     private static void actualizarTotal() {
         double total = 0.0;
         List<modeloProducto> productos = Carrito.getInstance().getProductos();
@@ -170,10 +206,9 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
 
         DecimalFormat df = new DecimalFormat("#.00");
         tvTotal.setText("Total: " + df.format(total) + " €");
-
     }
 
-
+    // Manejo de clics en los elementos del carrito
     @Override
     public void onItemClick(int position, int cantidad) {
         if (!dialogoMostrado) {
@@ -183,11 +218,12 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
         }
     }
 
-
+    // Método para mostrar el diálogo de producto
     public void mostrarDialogoProducto(modeloProducto producto, Context context, int cantidadActual, int position, AdaptadorCarrito adaptadorCarrito) {
         Dialog dialog = new Dialog(context);
         dialog.setContentView(R.layout.dialog_producto_comprar);
-        modeloProducto productoEnCarrito = null;
+
+        // Inicialización de los elementos del diálogo
         ImageView imageView = dialog.findViewById(R.id.productoImagen);
         TextView nombreTextView = dialog.findViewById(R.id.productoNombre);
         TextView descripcionTextView = dialog.findViewById(R.id.productoDesc);
@@ -198,6 +234,7 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
         Button btnmenos = dialog.findViewById(R.id.btnmenos);
         Button btnComprar = dialog.findViewById(R.id.btnComprar);
 
+        // Cargar la imagen del producto
         String imagenBase64 = producto.getImagen();
         if (imagenBase64 != null && !imagenBase64.isEmpty()) {
             byte[] imagenBytes = Base64.decode(imagenBase64, Base64.DEFAULT);
@@ -207,16 +244,16 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
             imageView.setImageResource(R.drawable.imagen_test);
         }
 
+        // Mostrar detalles del producto en el diálogo
         nombreTextView.setText(producto.getNombre());
         descripcionTextView.setText(producto.getDescripcion());
         DecimalFormat df = new DecimalFormat("#.00");
         String precioFormateado = df.format(producto.getPrecio());
         precioTextView.setText("Precio: " + precioFormateado + " €");
         tallaTextView.setText("Talla: " + producto.getTalla());
-
-        // Mostrar la cantidad actual en el EditText
         cantidadEditText.setText(String.valueOf(cantidadActual));
 
+        // Manejar clics en los botones de aumentar y disminuir cantidad
         btnmas.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,6 +274,7 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
             }
         });
 
+        // Manejar clic en el botón de comprar
         btnComprar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,7 +286,7 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
 
                     // Verificar que la posición es válida
                     if (position < 0 || position >= carrito.getProductos().size()) {
-                        Utilidades.mostrarToastError(CarritoActivity.this, "Posición no válida");
+                        mostrarToastError(CarritoActivity.this, "Posición no válida");
                         dialog.dismiss();
                         return;
                     }
@@ -311,19 +349,25 @@ public class CarritoActivity extends ActividadBase implements AdaptadorCarrito.O
                     actualizarTotal();
                     dialog.dismiss();
                 } catch (NumberFormatException e) {
-                    Utilidades.mostrarToastError(CarritoActivity.this, "Formato de cantidad no válido");
+                    mostrarToastError(CarritoActivity.this, "Formato de cantidad no válido");
                 }
             }
         });
 
+        // Manejar la acción cuando el diálogo se cierra
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                // Cuando el diálogo se cierra, establece la variable dialogoMostrado a false
                 dialogoMostrado = false;
             }
         });
         dialog.show();
     }
 
+    // Método para vaciar el carrito
+    private void vaciarCarrito() {
+        Carrito.getInstance().limpiarCarrito();
+        adaptadorCarrito.notifyDataSetChanged();
+        actualizarTotal();
+    }
 }

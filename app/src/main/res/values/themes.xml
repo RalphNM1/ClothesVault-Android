@@ -8,4 +8,8 @@
 
     <style name="Theme.ClothesVault" parent="Base.Theme.ClothesVault" />
 
+    <style name="checkBoxStyle" parent="Base.Theme.AppCompat">
+        <item name="colorAccent">@color/white</item>
+        <item name="android:textColorSecondary">#09184D</item>
+    </style>
 </resources>
